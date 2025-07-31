@@ -4,7 +4,7 @@ RUN apt-get update && apt-get -y upgrade && apt-get update
 RUN apt-get -y install sudo dpkg-dev debhelper dh-virtualenv \
   python3 python3-venv python3-pip
 
-RUN python3 -m pip install --upgrade pip
+# RUN python3 -m pip install --upgrade pip
 RUN apt-get -y install libxslt-dev libxml2-dev
 RUN apt-get -y install build-essential libssl-dev libffi-dev python3-dev pkg-config
 RUN apt-get -y install zlib1g-dev
