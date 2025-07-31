@@ -78,12 +78,16 @@ def print_status() -> str:
             if print_status.current_byte == 0:
                 current_layer = 1
             else:
-                current_layer = (
-                    sliced_model_file.end_byte_offset_by_layer.index(
-                        print_status.current_byte
-                    )
-                    + 1
-                )
+                # Find the layer corresponding to current_byte position
+                # Use the last layer where end_byte_offset <= current_byte
+                current_layer = 1
+                for i, end_byte in enumerate(sliced_model_file.end_byte_offset_by_layer):
+                    if print_status.current_byte <= end_byte:
+                        current_layer = i + 1
+                        break
+                else:
+                    # If current_byte is beyond all layers, use the last layer
+                    current_layer = len(sliced_model_file.end_byte_offset_by_layer)
 
             progress = (
                 100.0
