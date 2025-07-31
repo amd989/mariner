@@ -7,11 +7,13 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import { makeStyles, ThemeProvider } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import SwipeableDrawer from "@material-ui/core/SwipeableDrawer";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import withWidth, { WithWidth } from "@material-ui/core/withWidth";
+import Brightness4Icon from "@material-ui/icons/Brightness4";
+import Brightness7Icon from "@material-ui/icons/Brightness7";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import FolderIcon from "@material-ui/icons/Folder";
 import HomeIcon from "@material-ui/icons/Home";
@@ -19,9 +21,9 @@ import MenuIcon from "@material-ui/icons/Menu";
 import clsx from "clsx";
 import React from "react";
 import { Link, Route, Routes } from "react-router-dom";
-import theme from "../theme";
 import FileList from "./FileList";
 import PrintStatus from "./PrintStatus";
+import { useTheme } from "./ThemeProvider";
 
 const drawerWidth = 240;
 
@@ -97,6 +99,7 @@ const useStyles = makeStyles((theme) => ({
 
 function Main({ width }: WithWidth): React.ReactElement {
   const classes = useStyles();
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const [open, setOpen] = React.useState(false);
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -115,87 +118,92 @@ function Main({ width }: WithWidth): React.ReactElement {
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <ThemeProvider theme={theme}>
-        <AppBar
-          position="absolute"
-          className={clsx(classes.appBar, open && classes.appBarShift)}
-        >
-          <Toolbar className={classes.toolbar}>
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={handleDrawerOpen}
-              className={clsx(
-                classes.menuButton,
-                open && classes.menuButtonHidden
-              )}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              className={classes.title}
-            >
-              mariner3d
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <SwipeableDrawer
-          variant={drawerVariant}
-          classes={{
-            paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
-          }}
-          open={open}
-          onOpen={handleDrawerOpen}
-          onClose={handleDrawerClose}
-        >
-          <div className={classes.toolbarIcon}>
-            <IconButton onClick={handleDrawerClose}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </div>
-          <Divider />
-          <List>
-            <ListItem
-              button
-              key="home"
-              component={Link}
-              to="/"
-              onClick={handleDrawerItemClick}
-            >
-              <ListItemIcon>
-                <HomeIcon />
-              </ListItemIcon>
-              <ListItemText primary="Home" />
-            </ListItem>
-            <ListItem
-              button
-              key="files"
-              component={Link}
-              to="/files"
-              onClick={handleDrawerItemClick}
-            >
-              <ListItemIcon>
-                <FolderIcon />
-              </ListItemIcon>
-              <ListItemText primary="Files" />
-            </ListItem>
-          </List>
-        </SwipeableDrawer>
-        <main className={classes.content}>
-          <div className={classes.appBarSpacer} />
-          <Container maxWidth="sm" className={classes.container}>
-            <Routes>
-              <Route path="/" element={<PrintStatus />} />
-              <Route path="/files" element={<FileList />} />
-            </Routes>
-          </Container>
-        </main>
-      </ThemeProvider>
+      <AppBar
+        position="absolute"
+        className={clsx(classes.appBar, open && classes.appBarShift)}
+      >
+        <Toolbar className={classes.toolbar}>
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            className={clsx(
+              classes.menuButton,
+              open && classes.menuButtonHidden
+            )}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography
+            component="h1"
+            variant="h6"
+            color="inherit"
+            noWrap
+            className={classes.title}
+          >
+            mariner3d
+          </Typography>
+          <IconButton
+            color="inherit"
+            onClick={toggleDarkMode}
+            aria-label="toggle dark mode"
+          >
+            {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+          </IconButton>
+        </Toolbar>
+      </AppBar>
+      <SwipeableDrawer
+        variant={drawerVariant}
+        classes={{
+          paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
+        }}
+        open={open}
+        onOpen={handleDrawerOpen}
+        onClose={handleDrawerClose}
+      >
+        <div className={classes.toolbarIcon}>
+          <IconButton onClick={handleDrawerClose}>
+            <ChevronLeftIcon />
+          </IconButton>
+        </div>
+        <Divider />
+        <List>
+          <ListItem
+            button
+            key="home"
+            component={Link}
+            to="/"
+            onClick={handleDrawerItemClick}
+          >
+            <ListItemIcon>
+              <HomeIcon />
+            </ListItemIcon>
+            <ListItemText primary="Home" />
+          </ListItem>
+          <ListItem
+            button
+            key="files"
+            component={Link}
+            to="/files"
+            onClick={handleDrawerItemClick}
+          >
+            <ListItemIcon>
+              <FolderIcon />
+            </ListItemIcon>
+            <ListItemText primary="Files" />
+          </ListItem>
+        </List>
+      </SwipeableDrawer>
+      <main className={classes.content}>
+        <div className={classes.appBarSpacer} />
+        <Container maxWidth="sm" className={classes.container}>
+          <Routes>
+            <Route path="/" element={<PrintStatus />} />
+            <Route path="/files" element={<FileList />} />
+          </Routes>
+        </Container>
+      </main>
     </div>
   );
 }

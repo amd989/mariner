@@ -6,6 +6,7 @@ import ReactDOM from "react-dom";
 import { HashRouter } from "react-router-dom";
 import { AlertServiceProvider } from "./components/AlertServiceProvider";
 import Main from "./components/Main";
+import { ThemeProvider } from "./components/ThemeProvider";
 
 const csrfToken: HTMLMetaElement = nullthrows(
   document.head.querySelector('meta[name="csrf-token"]')
@@ -17,9 +18,11 @@ const wrapper = document.getElementById("container");
 wrapper
   ? ReactDOM.render(
       <HashRouter>
-        <AlertServiceProvider>
-          <Main />
-        </AlertServiceProvider>
+        <ThemeProvider>
+          <AlertServiceProvider>
+            <Main />
+          </AlertServiceProvider>
+        </ThemeProvider>
       </HashRouter>,
       wrapper
     )
