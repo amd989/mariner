@@ -63,5 +63,6 @@
     "transform": {
       "^.+\\.(js|jsx|ts|tsx)$": "babel-jest"
     }
-  }
+  },
+  "license": "MIT"
 }

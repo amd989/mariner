@@ -6,6 +6,10 @@ permissions: write-all
 # yamllint disable-line rule:truthy
 on:
   push:
+    branches:
+      - master
+    tags:
+      - 'v*'
   release:
     types: [published]
 
