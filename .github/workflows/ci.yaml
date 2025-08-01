@@ -15,7 +15,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: abatilo/actions-poetry@v3.0.0
+      - name: Upgrade pip and setuptools
+        run: python -m pip install --upgrade pip setuptools
+      - uses: abatilo/actions-poetry@v4.0.0
       - name: Configure Poetry
         run: poetry config virtualenvs.create true && poetry config virtualenvs.in-project true
       - name: Cache Poetry dependencies

@@ -81,13 +81,14 @@ def print_status() -> str:
                 # Find the layer corresponding to current_byte position
                 # Use the last layer where end_byte_offset <= current_byte
                 current_layer = 1
-                for i, end_byte in enumerate(sliced_model_file.end_byte_offset_by_layer):
+                end_byte_offsets = sliced_model_file.end_byte_offset_by_layer
+                for i, end_byte in enumerate(end_byte_offsets):
                     if print_status.current_byte <= end_byte:
                         current_layer = i + 1
                         break
                 else:
                     # If current_byte is beyond all layers, use the last layer
-                    current_layer = len(sliced_model_file.end_byte_offset_by_layer)
+                    current_layer = len(end_byte_offsets)
 
             progress = (
                 100.0
@@ -146,9 +147,7 @@ def list_files() -> str:
                 file_data: Dict[str, Any] = {
                     "filename": dir_entry.name,
                     "path": str(
-                        (path / dir_entry.name).relative_to(
-                            files_directory_resolved
-                        )
+                        (path / dir_entry.name).relative_to(files_directory_resolved)
                     ),
                 }
 
@@ -180,7 +179,10 @@ def file_details() -> str:
     filename = str(request.args.get("filename"))
     path = (config.get_files_directory() / filename).resolve()
     files_directory_resolved = config.get_files_directory().resolve()
-    if files_directory_resolved not in path.parents and path != files_directory_resolved:
+    if (
+        files_directory_resolved not in path.parents
+        and path != files_directory_resolved
+    ):
         abort(400)
     if not os.path.isfile(path):
         abort(400)
@@ -217,7 +219,10 @@ def delete_file() -> str:
     filename = str(request.args.get("filename"))
     path = (config.get_files_directory() / filename).resolve()
     files_directory_resolved = config.get_files_directory().resolve()
-    if files_directory_resolved not in path.parents and path != files_directory_resolved:
+    if (
+        files_directory_resolved not in path.parents
+        and path != files_directory_resolved
+    ):
         abort(400)
     # we use os.path.isfile instead of Path.is_file here because pyfakefs doesn't
     # seem to properly mock Path.is_file as of pyfakefs 4.4.0
@@ -232,7 +237,10 @@ def file_preview() -> Response:
     filename = str(request.args.get("filename"))
     path = (config.get_files_directory() / filename).resolve()
     files_directory_resolved = config.get_files_directory().resolve()
-    if files_directory_resolved not in path.parents and path != files_directory_resolved:
+    if (
+        files_directory_resolved not in path.parents
+        and path != files_directory_resolved
+    ):
         abort(400)
     if not os.path.isfile(path):
         abort(400)
