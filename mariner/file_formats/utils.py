@@ -9,7 +9,7 @@ from mariner.file_formats.photon import PhotonFile
 from mariner.file_formats.ctb_encrypted import check_encrypted
 import logging
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 EXTENSION_TO_FILE_FORMAT: Mapping[str, Type[SlicedModelFile]] = {

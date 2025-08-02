@@ -61,7 +61,7 @@ Elegoo Mars Pro.
    :target: https://mariner.readthedocs.io/en/latest/?badge=latest
 .. |codecov| image:: https://codecov.io/gh/amd989/mariner/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/amd989/mariner
-.. |Python| image:: https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-blue
+.. |Python| image:: https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10-blue
    :target: https://www.python.org/downloads/
 .. |MIT license| image:: https://img.shields.io/badge/License-MIT-blue.svg
    :target: https://amd.mit-license.org/

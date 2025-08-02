@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import pathlib
 import struct
 from dataclasses import dataclass
-from typing import List
+from typing import List, Type, Union
 
 import png
 from typedstruct import LittleEndianStruct, StructType
@@ -21,9 +23,11 @@ BHASH = b"32"
 about_software = "UVtools"
 secret1 = "hQ36XB6yTk+zO02ysyiowt8yC1buK+nbLWyfY40EXoU="
 secret2 = "Wld+ampndVJecmVjYH5cWQ=="
-bigfoot = xorCipher(base64.b64decode(secret1, validate=True), about_software.encode())
-cookiemonster = xorCipher(
-    base64.b64decode(secret2, validate=True), about_software.encode()
+bigfoot: bytes = bytes(
+    xorCipher(base64.b64decode(secret1, validate=True), about_software.encode())
+)
+cookiemonster: bytes = bytes(
+    xorCipher(base64.b64decode(secret2, validate=True), about_software.encode())
 )
 
 
@@ -166,7 +170,7 @@ class CTBPreview(LittleEndianStruct):
 REPEAT_RGB15_MASK: int = 1 << 5
 
 
-def check_encrypted(filename: str):
+def check_encrypted(filename: str) -> Type[Union[CTBEncryptedFile, CTBFile]]:
     with open(filename, "rb") as file:
         ctb_header = CTBEncryptedHeader.unpack(file.read(CTBEncryptedHeader.get_size()))
         if ctb_header.magic == MAGIC_CTB_ENCRYPTED:
@@ -207,13 +211,13 @@ def _read_image(width: int, height: int, data: bytes) -> png.Image:
     return png.from_array(array, "RGB;5")
 
 
-def _aes_crypt(enc: bytes, encrypt: bool):
+def _aes_crypt(enc: bytes, encrypt: bool) -> bytes:
     Cipher = AES.new(bytes(bigfoot), AES.MODE_CBC, bytes(cookiemonster))
 
     temp = bytearray()
     temp += enc
     if len(enc) % 16 != 0:
-        temp += (16 - len(enc) % 16) * "X"
+        temp += (16 - len(enc) % 16) * b"X"
 
     if encrypt:
         return Cipher.encrypt(bytes(temp))
@@ -270,23 +274,23 @@ class CTBEncryptedFile(SlicedModelFile):
                     + str(int.from_bytes(checksum_hash, "little"))
                 )
 
-            LayersPointer = [None] * ctb_slicer.layer_count
-            for layer_index in range(0, ctb_slicer.layer_count):
+            LayersPointer = []
+            for _ in range(0, ctb_slicer.layer_count):
                 file.seek(ctb_slicer.layer_table_offset)
-                LayersPointer[layer_index] = CTBLayerPointer.unpack(
-                    file.read(CTBLayerPointer.get_size())
+                LayersPointer.append(
+                    CTBLayerPointer.unpack(file.read(CTBLayerPointer.get_size()))
                 )
 
-            LayersDefinition = [None] * ctb_slicer.layer_count
+            LayersDefinition = []
             end_byte_offset_by_layer = []
             for layer in range(0, ctb_slicer.layer_count):
                 file.seek(LayersPointer[layer].layer_offset)
-                LayersDefinition[layer] = CTBEncryptedLayerDef.unpack(
+                layer_def = CTBEncryptedLayerDef.unpack(
                     file.read(CTBEncryptedLayerDef.get_size())
                 )
+                LayersDefinition.append(layer_def)
                 end_byte_offset_by_layer.append(
-                    LayersDefinition[layer].encrypted_data_offset
-                    + LayersDefinition[layer].encrypted_data_length
+                    layer_def.encrypted_data_offset + layer_def.encrypted_data_length
                 )
 
             return CTBEncryptedFile(

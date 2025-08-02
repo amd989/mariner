@@ -75,7 +75,8 @@ def print_status() -> str:
                 config.get_files_directory() / selected_file
             )
 
-            if print_status.current_byte == 0:
+            current_byte = print_status.current_byte or 0
+            if current_byte == 0:
                 current_layer = 1
             else:
                 # Find the layer corresponding to current_byte position
@@ -83,7 +84,7 @@ def print_status() -> str:
                 current_layer = 1
                 end_byte_offsets = sliced_model_file.end_byte_offset_by_layer
                 for i, end_byte in enumerate(end_byte_offsets):
-                    if print_status.current_byte <= end_byte:
+                    if current_byte <= end_byte:
                         current_layer = i + 1
                         break
                 else:
