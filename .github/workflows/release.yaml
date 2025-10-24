@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   build-deb:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     strategy:
       matrix:
         include:
@@ -84,7 +84,7 @@ jobs:
           path: output/*.deb
 
   build-rpm:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     strategy:
       matrix:
         include:
@@ -157,7 +157,7 @@ jobs:
           path: output/*.rpm
 
   build-container:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -231,7 +231,7 @@ jobs:
 
   publish-repos:
     needs: [build-deb, build-rpm]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout gh-pages
         uses: actions/checkout@v4
