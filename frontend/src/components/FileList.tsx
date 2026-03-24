@@ -7,6 +7,7 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
+import Typography from "@material-ui/core/Typography";
 import { createStyles, WithStyles, withStyles } from "@material-ui/core/styles";
 import FolderIcon from "@material-ui/icons/Folder";
 import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
@@ -29,9 +30,11 @@ import UploadButton from "./UploadButton";
 function DirectoryListItem({
   directory,
   onSelect,
+  classes,
 }: {
   directory: DirectoryAPIResponse;
   onSelect: (dirname: string) => void;
+  classes?: any;
 }): React.ReactElement {
   return (
     <React.Fragment>
@@ -39,11 +42,20 @@ function DirectoryListItem({
         button
         key={directory.dirname}
         onClick={() => onSelect(directory.dirname)}
+        className={classes?.listItem}
+        style={{ marginBottom: 8 }}
       >
         <ListItemIcon>
-          <FolderIcon />
+          <FolderIcon color="primary" />
         </ListItemIcon>
-        <ListItemText primary={directory.dirname} />
+        <ListItemText 
+          primary={
+            <Typography variant="subtitle1" style={{ fontWeight: 600 }}>
+              {directory.dirname}
+            </Typography>
+          }
+          secondary="Folder"
+        />
       </ListItem>
     </React.Fragment>
   );
@@ -52,9 +64,11 @@ function DirectoryListItem({
 function FileListItem({
   file,
   onDelete,
+  classes,
 }: {
   file: FileAPIResponse;
   onDelete: () => void;
+  classes?: any;
 }): React.ReactElement {
   const [open, setOpen] = React.useState(false);
   const handleClickOpen = () => setOpen(true);
@@ -67,11 +81,38 @@ function FileListItem({
   const api = useAPI();
   return (
     <React.Fragment>
-      <ListItem button key={file.filename} onClick={handleClickOpen}>
+      <ListItem 
+        button 
+        key={file.filename} 
+        onClick={handleClickOpen}
+        className={classes?.listItem}
+        style={{ marginBottom: 8 }}
+      >
         <ListItemIcon>
-          {file.can_be_printed ? <LayersIcon /> : <InsertDriveFileIcon />}
+          {file.can_be_printed ? 
+            <LayersIcon color="primary" /> : 
+            <InsertDriveFileIcon color="secondary" />
+          }
         </ListItemIcon>
-        <ListItemText primary={file.filename} secondary={printTime} />
+        <ListItemText 
+          primary={
+            <Typography variant="subtitle1" style={{ fontWeight: 600 }}>
+              {file.filename}
+            </Typography>
+          }
+          secondary={
+            <Box>
+              <Typography variant="body2" color="textSecondary">
+                {file.can_be_printed ? '3D Print File' : 'File'}
+              </Typography>
+              {printTime && (
+                <Typography variant="body2" color="textSecondary">
+                  Print time: {printTime}
+                </Typography>
+              )}
+            </Box>
+          }
+        />
       </ListItem>
       <FileDetailsDialog
         filename={file.filename}
@@ -102,12 +143,33 @@ export interface FileListState {
   data?: FileListAPIResponse;
 }
 
-const styles = () =>
+const styles = (theme: any) =>
   createStyles({
     loadingContainer: {
       flexGrow: 1,
-      padding: 18,
+      padding: theme.spacing(4),
       textAlign: "center",
+    },
+    modernCard: {
+      borderRadius: 20,
+      background: theme.palette.type === 'dark' 
+        ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
+        : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+      boxShadow: theme.palette.type === 'dark'
+        ? '0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)'
+        : '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+      border: 'none',
+    },
+    listItem: {
+      borderRadius: 12,
+      marginBottom: theme.spacing(1),
+      background: theme.palette.type === 'dark' ? '#0f172a' : '#f8fafc',
+      border: theme.palette.type === 'dark' 
+        ? '1px solid #334155' 
+        : '1px solid #e2e8f0',
+      '&:hover': {
+        background: theme.palette.type === 'dark' ? '#1e293b' : '#e2e8f0',
+      },
     },
   });
 
@@ -139,10 +201,15 @@ class FileList extends React.Component<
   }
 
   _renderContent(): React.ReactElement {
+    const { classes } = this.props;
+    
     if (this.state.isLoading) {
       return (
-        <Box className={this.props.classes.loadingContainer}>
-          <CircularProgress />
+        <Box className={classes.loadingContainer}>
+          <CircularProgress size={60} />
+          <Typography variant="h6" style={{ marginTop: 16 }}>
+            Loading files...
+          </Typography>
         </Box>
       );
     }
@@ -152,6 +219,7 @@ class FileList extends React.Component<
       <DirectoryListItem
         directory={directory}
         key={directory.dirname}
+        classes={classes}
         onSelect={(dirname) =>
           this.setState(
             (state, _props) => ({
@@ -168,6 +236,7 @@ class FileList extends React.Component<
       <FileListItem
         file={file}
         key={file.filename}
+        classes={classes}
         onDelete={async () => await this.refresh()}
       />
     ));
@@ -177,6 +246,7 @@ class FileList extends React.Component<
         <DirectoryListItem
           directory={{ dirname: ".." }}
           key=".."
+          classes={classes}
           onSelect={(_) =>
             this.setState(
               (state, _props) => ({
@@ -200,16 +270,32 @@ class FileList extends React.Component<
   }
 
   render(): React.ReactElement {
+    const { classes } = this.props;
+    
     return (
-      <Card>
+      <Card className={classes.modernCard} elevation={0}>
         <CardHeader
-          title="Files"
-          subheader={`/${this.state.path}`}
+          title={
+            <Box display="flex" alignItems="center">
+              <FolderIcon style={{ marginRight: 12, fontSize: 32 }} />
+              <Typography variant="h4" style={{ fontWeight: 700, marginBottom: 4 }}>
+                File Manager
+              </Typography>
+            </Box>
+          }
+          subheader={
+            <Typography variant="subtitle1" color="textSecondary">
+              Current path: {this.state.path || '/'}
+            </Typography>
+          }
           action={
             <UploadButton onUploadFinished={async () => await this.refresh()} />
           }
+          style={{ paddingBottom: 16 }}
         />
-        <CardContent>{this._renderContent()}</CardContent>
+        <CardContent style={{ paddingTop: 0 }}>
+          {this._renderContent()}
+        </CardContent>
       </Card>
     );
   }

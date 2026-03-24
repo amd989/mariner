@@ -8,37 +8,89 @@ import Grid from "@material-ui/core/Grid";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import { createStyles, WithStyles, withStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
-import CheckIcon from "@material-ui/icons/Check";
+import Chip from "@material-ui/core/Chip";
 import FolderIcon from "@material-ui/icons/Folder";
 import PauseIcon from "@material-ui/icons/Pause";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import StopIcon from "@material-ui/icons/Stop";
+import LayersIcon from "@material-ui/icons/Layers";
+import ScheduleIcon from "@material-ui/icons/Schedule";
+import PrintIcon from "@material-ui/icons/Print";
 import nullthrows from "nullthrows";
 import React from "react";
 import { Link } from "react-router-dom";
 import { withAPI, WithAPIProps } from "../api";
 import { getPrinterDisplayName, renderTime, sleep } from "../utils";
 
-const styles = () =>
+const styles = (theme: any) =>
   createStyles({
     playButton: {
-      padding: 6,
+      padding: 12,
+      borderRadius: 12,
+      minWidth: 120,
     },
     playIcon: {
-      height: 38,
-      width: 38,
+      height: 20,
+      width: 20,
     },
-    gridRoot: {
-      flexGrow: 1,
-      padding: 12,
-      paddingTop: 20,
-      paddingBottom: 20,
-      textAlign: "center",
+    statsContainer: {
+      padding: theme.spacing(3),
+      background: theme.palette.type === 'dark' 
+        ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
+        : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+      borderRadius: 16,
+      marginBottom: theme.spacing(3),
+    },
+    statCard: {
+      background: theme.palette.type === 'dark' ? '#0f172a' : '#ffffff',
+      borderRadius: 12,
+      padding: theme.spacing(2),
+      textAlign: 'center',
+      border: theme.palette.type === 'dark' 
+        ? '1px solid #334155' 
+        : '1px solid #e2e8f0',
+      boxShadow: theme.palette.type === 'dark'
+        ? '0 4px 6px -1px rgba(0, 0, 0, 0.3)'
+        : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+    },
+    progressContainer: {
+      padding: theme.spacing(3),
+      background: theme.palette.type === 'dark' ? '#1e293b' : '#ffffff',
+      borderRadius: 16,
+      marginBottom: theme.spacing(3),
+      border: theme.palette.type === 'dark' 
+        ? '1px solid #334155' 
+        : '1px solid #e2e8f0',
     },
     loadingContainer: {
       flexGrow: 1,
-      padding: 18,
+      padding: theme.spacing(4),
       textAlign: "center",
+    },
+    modernCard: {
+      borderRadius: 20,
+      background: theme.palette.type === 'dark' 
+        ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
+        : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+      boxShadow: theme.palette.type === 'dark'
+        ? '0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)'
+        : '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+      border: 'none',
+    },
+    statusChip: {
+      fontSize: '0.875rem',
+      fontWeight: 600,
+      borderRadius: 20,
+      padding: theme.spacing(0.5, 2),
+    },
+    buttonGroup: {
+      '& > *': {
+        margin: theme.spacing(0.5),
+        borderRadius: 12,
+        textTransform: 'none',
+        fontWeight: 600,
+        minWidth: 100,
+      },
     },
   });
 
@@ -120,65 +172,96 @@ class PrintStatus extends React.Component<
     window.clearInterval(this.intervalID);
   }
 
+  _getStatusColor(state: PrinterState): "default" | "primary" | "secondary" {
+    switch (state) {
+      case "PRINTING": return "primary";
+      case "PAUSED": return "secondary";
+      case "STARTING_PRINT": return "secondary";
+      default: return "default";
+    }
+  }
+
+  _getStatusLabel(state: PrinterState): string {
+    switch (state) {
+      case "IDLE": return "Ready";
+      case "STARTING_PRINT": return "Starting...";
+      case "PRINTING": return "Printing";
+      case "PAUSED": return "Paused";
+      case "CLOSED": return "Offline";
+      default: return state;
+    }
+  }
+
   _renderButtons(): React.ReactElement {
+    const { classes } = this.props;
     const { state } = nullthrows(this.state.data);
-    if (state === "IDLE") {
-      return <CircularProgress />;
+    
+    if (state === "CLOSED") {
+      return <React.Fragment />;
     }
 
-    return (
-      <Grid
-        container
-        direction="row"
-        justify="center"
-        alignItems="center"
-        spacing={3}
-      >
-        <Grid item>
+    if (state === "IDLE") {
+      return (
+        <Box display="flex" justifyContent="center" mt={2}>
           <Button
             variant="contained"
             color="primary"
-            size="small"
-            startIcon={<PlayArrowIcon />}
-            onClick={async () => {
-              await this.props.api.resumePrint();
-              await this._refresh();
-            }}
-            disabled={state !== "PAUSED"}
+            size="large"
+            startIcon={<FolderIcon />}
+            component={Link}
+            to="/files"
+            className={classes.playButton}
           >
-            Resume
+            Select File to Print
           </Button>
-        </Grid>
-        <Grid item>
-          <Button
-            variant="outlined"
-            color="primary"
-            size="small"
-            startIcon={<PauseIcon />}
-            onClick={async () => {
-              await this.props.api.pausePrint();
-              await this._refresh();
-            }}
-            disabled={state === "PAUSED" || state === "STARTING_PRINT"}
-          >
-            Pause
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button
-            variant="outlined"
-            color="primary"
-            size="small"
-            startIcon={<StopIcon />}
-            onClick={async () => {
-              await this.props.api.cancelPrint();
-              await this._refresh();
-            }}
-          >
-            Stop
-          </Button>
-        </Grid>
-      </Grid>
+        </Box>
+      );
+    }
+
+    return (
+      <Box display="flex" justifyContent="center" flexWrap="wrap" className={classes.buttonGroup}>
+        <Button
+          variant={state === "PAUSED" ? "contained" : "outlined"}
+          color="primary"
+          size="large"
+          startIcon={<PlayArrowIcon className={classes.playIcon} />}
+          onClick={async () => {
+            await this.props.api.resumePrint();
+            await this._refresh();
+          }}
+          disabled={state !== "PAUSED"}
+          className={classes.playButton}
+        >
+          Resume
+        </Button>
+        <Button
+          variant="outlined"
+          color="primary"
+          size="large"
+          startIcon={<PauseIcon className={classes.playIcon} />}
+          onClick={async () => {
+            await this.props.api.pausePrint();
+            await this._refresh();
+          }}
+          disabled={state === "PAUSED" || state === "STARTING_PRINT"}
+          className={classes.playButton}
+        >
+          Pause
+        </Button>
+        <Button
+          variant="outlined"
+          color="secondary"
+          size="large"
+          startIcon={<StopIcon className={classes.playIcon} />}
+          onClick={async () => {
+            await this.props.api.cancelPrint();
+            await this._refresh();
+          }}
+          className={classes.playButton}
+        >
+          Stop
+        </Button>
+      </Box>
     );
   }
 
@@ -188,7 +271,10 @@ class PrintStatus extends React.Component<
     if (this.state.isLoading) {
       return (
         <Box className={classes.loadingContainer}>
-          <CircularProgress />
+          <CircularProgress size={60} />
+          <Typography variant="h6" style={{ marginTop: 16 }}>
+            Connecting to printer...
+          </Typography>
         </Box>
       );
     }
@@ -202,95 +288,94 @@ class PrintStatus extends React.Component<
       timeLeftSecs,
     } = nullthrows(this.state.data);
 
-    if (state === "IDLE" || state == "CLOSED") {
+    if (state === "IDLE" || state === "CLOSED") {
       return (
-        <Box>
-          <Typography variant="h5" gutterBottom>
-            <Grid
-              container
-              direction="row"
-              justify="center"
-              alignItems="center"
-              spacing={1}
-            >
-              <Grid item>
-                <CheckIcon fontSize="large" />
-              </Grid>
-              <Grid item>Ready</Grid>
-            </Grid>
+        <Box textAlign="center" py={4}>
+          <Box mb={3}>
+            <PrintIcon style={{ fontSize: 64, opacity: 0.6 }} />
+          </Box>
+          <Typography variant="h4" gutterBottom style={{ fontWeight: 600 }}>
+            {state === "CLOSED" ? "Printer Offline" : "Ready to Print"}
           </Typography>
-          <Grid
-            container
-            alignItems="flex-start"
-            justify="flex-end"
-            direction="row"
-          >
-            <Button
-              variant="outlined"
-              color="primary"
-              size="small"
-              startIcon={<FolderIcon />}
-              component={Link}
-              to="/files"
-            >
-              Files
-            </Button>
-          </Grid>
+          <Typography variant="body1" color="textSecondary" paragraph>
+            {state === "CLOSED" 
+              ? "Check printer connection and power"
+              : "Select a file to start your next 3D print"
+            }
+          </Typography>
+          {this._renderButtons()}
         </Box>
       );
     }
 
     return (
       <React.Fragment>
-        <Box display="flex">
-          <Box width="100%">
-            <Typography component="h6" variant="h6" color="textSecondary">
+        {/* Status Header */}
+        <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
+          <Box>
+            <Typography variant="h5" style={{ fontWeight: 600, marginBottom: 4 }}>
               {selectedFile}
             </Typography>
-            <Box display="flex" alignItems="center">
-              <Box width="100%" mr={1}>
-                <LinearProgress variant="determinate" value={progress} />
-              </Box>
-              <Box minWidth={35}>
-                <Typography variant="body2" color="textSecondary">
-                  {`${Math.round(progress)}%`}
-                </Typography>
-              </Box>
-            </Box>
+            <Chip
+              label={this._getStatusLabel(state)}
+              color={this._getStatusColor(state)}
+              icon={<PrintIcon />}
+              className={classes.statusChip}
+            />
           </Box>
         </Box>
 
-        <div className={classes.gridRoot}>
+        {/* Progress Section */}
+        <Box className={classes.progressContainer}>
+          <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+            <Typography variant="h6" style={{ fontWeight: 600 }}>
+              Progress
+            </Typography>
+            <Typography variant="h4" color="primary" style={{ fontWeight: 700 }}>
+              {Math.round(progress)}%
+            </Typography>
+          </Box>
+          <LinearProgress 
+            variant="determinate" 
+            value={progress} 
+            style={{ 
+              height: 12, 
+              borderRadius: 6,
+              marginBottom: 16
+            }}
+          />
+          <Typography variant="body2" color="textSecondary" align="center">
+            {selectedFile}
+          </Typography>
+        </Box>
+
+        {/* Stats Grid */}
+        <Box className={classes.statsContainer}>
           <Grid container spacing={3}>
             <Grid item xs={6}>
-              <Typography variant="h5" color="textPrimary" display="inline">
-                {renderTime(nullthrows(timeLeftSecs))}&nbsp;
-              </Typography>
-              <Typography
-                variant="body1"
-                color="textSecondary"
-                display="inline"
-              >
-                left
-              </Typography>
+              <Box className={classes.statCard}>
+                <ScheduleIcon color="primary" style={{ fontSize: 32, marginBottom: 8 }} />
+                <Typography variant="h4" style={{ fontWeight: 700, marginBottom: 4 }}>
+                  {renderTime(nullthrows(timeLeftSecs))}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  Time Remaining
+                </Typography>
+              </Box>
             </Grid>
             <Grid item xs={6}>
-              <Typography variant="h5" color="textPrimary" display="inline">
-                {currentLayer}
-              </Typography>
-              <Typography variant="h6" color="textPrimary" display="inline">
-                /{layerCount}&nbsp;
-              </Typography>
-              <Typography
-                variant="body1"
-                color="textSecondary"
-                display="inline"
-              >
-                layers
-              </Typography>
+              <Box className={classes.statCard}>
+                <LayersIcon color="primary" style={{ fontSize: 32, marginBottom: 8 }} />
+                <Typography variant="h4" style={{ fontWeight: 700, marginBottom: 4 }}>
+                  {currentLayer}/{layerCount}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  Current Layer
+                </Typography>
+              </Box>
             </Grid>
           </Grid>
-        </div>
+        </Box>
 
         {this._renderButtons()}
       </React.Fragment>
@@ -298,13 +383,32 @@ class PrintStatus extends React.Component<
   }
 
   render(): React.ReactElement | null {
+    const { classes } = this.props;
+    const printerName = getPrinterDisplayName();
+    
     return (
-      <Card>
+      <Card className={classes.modernCard} elevation={0}>
         <CardHeader
-          title="Printer Status"
-          subheader={getPrinterDisplayName()}
+          title={
+            <Box display="flex" alignItems="center">
+              <PrintIcon style={{ marginRight: 12, fontSize: 32 }} />
+              <Typography variant="h4" style={{ fontWeight: 700, marginBottom: 4 }}>
+                Printer Dashboard
+              </Typography>
+            </Box>
+          }
+          subheader={
+            printerName && (
+              <Typography variant="subtitle1" color="textSecondary">
+                {printerName}
+              </Typography>
+            )
+          }
+          style={{ paddingBottom: 16 }}
         />
-        <CardContent>{this._renderContent()}</CardContent>
+        <CardContent style={{ paddingTop: 0 }}>
+          {this._renderContent()}
+        </CardContent>
       </Card>
     );
   }

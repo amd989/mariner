@@ -1,4 +1,5 @@
 import AppBar from "@material-ui/core/AppBar";
+import Box from "@material-ui/core/Box";
 import Container from "@material-ui/core/Container";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Divider from "@material-ui/core/Divider";
@@ -18,6 +19,7 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import FolderIcon from "@material-ui/icons/Folder";
 import HomeIcon from "@material-ui/icons/Home";
 import MenuIcon from "@material-ui/icons/Menu";
+import PrintIcon from "@material-ui/icons/Print";
 import clsx from "clsx";
 import React from "react";
 import { Link, Route, Routes } from "react-router-dom";
@@ -135,15 +137,18 @@ function Main({ width }: WithWidth): React.ReactElement {
           >
             <MenuIcon />
           </IconButton>
-          <Typography
-            component="h1"
-            variant="h6"
-            color="inherit"
-            noWrap
-            className={classes.title}
-          >
-            mariner3d
-          </Typography>
+          <Box display="flex" alignItems="center" className={classes.title}>
+            <PrintIcon style={{ marginRight: 8, fontSize: 28 }} />
+            <Typography
+              component="h1"
+              variant="h6"
+              color="inherit"
+              noWrap
+              style={{ fontWeight: 700, letterSpacing: '-0.025em' }}
+            >
+              mariner3d
+            </Typography>
+          </Box>
           <IconButton
             color="inherit"
             onClick={toggleDarkMode}
@@ -197,7 +202,7 @@ function Main({ width }: WithWidth): React.ReactElement {
       </SwipeableDrawer>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
-        <Container maxWidth="sm" className={classes.container}>
+        <Container maxWidth="md" className={classes.container}>
           <Routes>
             <Route path="/" element={<PrintStatus />} />
             <Route path="/files" element={<FileList />} />
