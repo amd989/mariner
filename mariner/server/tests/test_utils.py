@@ -29,11 +29,9 @@ class RetryTest(TestCase):
         self.assertEquals(self.num_attempts, 3)
 
     def test_catch_a_different_exception(self) -> None:
-        class A(Exception):
-            ...
+        class A(Exception): ...
 
-        class B(Exception):
-            ...
+        class B(Exception): ...
 
         def _always_fail_with_b() -> None:
             self.num_attempts += 1
