@@ -2,7 +2,7 @@ FROM balenalib/raspberry-pi-debian:latest
 
 RUN apt-get update && apt-get -y upgrade && apt-get update
 RUN apt-get -y install sudo dpkg-dev debhelper dh-virtualenv \
-  python3 python3-venv python3-pip
+  python3 python3-venv python3-pip nodejs npm
 
 # RUN python3 -m pip install --upgrade pip
 RUN apt-get -y install libxslt-dev libxml2-dev
@@ -21,6 +21,9 @@ ENV PATH=$PATH:/root/.local/bin \
 
 RUN mkdir /build
 COPY . /build/
+
+WORKDIR /build/frontend
+RUN npm install && npm run build
 
 WORKDIR /build
 RUN /root/.local/bin/poetry build
