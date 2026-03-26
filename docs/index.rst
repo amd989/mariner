@@ -1,7 +1,7 @@
-Welcome to the mariner documentation!
-=====================================
+Welcome to the Mariner 2 documentation!
+=======================================
 
-Mariner is a web interface for controlling MSLA 3D Printers based on `ChiTu
+Mariner 2 is a web interface for controlling MSLA 3D Printers based on `ChiTu
 controllers <https://www.chitusystems.com/>`_. These are controllers commonly
 used on 3D Printers by many brands such as Elegoo and Phrozen, making mariner
 compatible with a wide range of printers.
@@ -12,7 +12,7 @@ compatible with a wide range of printers.
 Features
 --------
 
-Mariner provides the following features:
+Mariner 2 provides the following features:
 
 - Wide range of :ref:`supported MSLA 3D printers <Supported Printers>`.
 - Web interface with support for both desktop and mobile.

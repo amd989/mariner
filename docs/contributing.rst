@@ -3,7 +3,7 @@ Contributing
 
 .. highlight:: bash
 
-Contributions to mariner are welcome! Both code and documentation are hosted on
+Contributions to Mariner 2 are welcome! Both code and documentation are hosted on
 our `GitHub repository <https://github.com/luizribeiro/mariner>`_.  If you
 are not familiar with GitHub and Pull Requests, we recommend for you to read
 `GitHub's documentation
@@ -22,7 +22,7 @@ Before diving into the sections below, make sure you have a checkout of the
 Development
 -----------
 
-Mariner is developed largely on top of `Python <https://www.python.org/>`_,
+Mariner 2 is developed largely on top of `Python <https://www.python.org/>`_,
 `TypeScript <https://www.typescriptlang.org/>`_ and `React
 <https://reactjs.org/>`_.
 

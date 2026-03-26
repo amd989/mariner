@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Mariner is a web application for controlling MSLA 3D printers based on ChiTu controllers remotely. It consists of a Python Flask backend and a React TypeScript frontend that communicate via REST APIs.
+Mariner 2 is a web application for controlling MSLA 3D printers based on ChiTu controllers remotely. It consists of a Python Flask backend and a React TypeScript frontend that communicate via REST APIs.
 
 ## Architecture
 

@@ -21,7 +21,7 @@ A clear and concise description of what you expected to happen.
 If applicable, attach screenshots or logs to help explain your problem.
 
 **Details:**
- - Mariner Version: [e.g. 0.2.0 - use `apt show mariner3d` to check]
+ - Mariner 2 Version: [e.g. 0.2.0 - use `apt show mariner3d` to check]
  - Printer Model: [e.g. Elegoo Mars Pro]
  - Raspberry Pi Model: [e.g. RPi Zero W]
 

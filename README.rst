@@ -1,5 +1,5 @@
-🛰️ mariner
-==========
+🛰️ mariner 2
+============
 
 |CI| |docs| |codecov| |Python| |MIT license|
 
@@ -25,7 +25,7 @@ For more details on the feature set, refer to our `Documentation
 Supported Printers
 ------------------
 
-Mariner supports a wide range of MSLA printers, including printers from the
+Mariner 2 supports a wide range of MSLA printers, including printers from the
 following manufacturers:
 
 - Anycubic
