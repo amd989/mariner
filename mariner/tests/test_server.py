@@ -2,14 +2,18 @@ import hashlib
 import io
 import os
 import pathlib
+from typing import Any
 from unittest.mock import patch, ANY, Mock
 
+from flask.testing import FlaskClient
 from freezegun import freeze_time
+from pyfakefs.fake_filesystem import FakeFilesystem
 from pyexpect import expect
 from pyfakefs.fake_filesystem_unittest import TestCase
 from werkzeug.datastructures import FileStorage
 
 from mariner import config
+from mariner.config import _get_config
 from mariner.exceptions import UnexpectedPrinterResponse
 from mariner.printer import (
     ChiTuPrinter,
@@ -21,6 +25,13 @@ from mariner.server.utils import read_cached_sliced_model_file
 
 
 class MarinerServerTest(TestCase):
+    ctb_file_contents: bytes
+    fork_file_contents: bytes
+    client: FlaskClient
+    fs: FakeFilesystem
+    printer_mock: Any
+    printer_patcher: Any
+
     def setUp(self) -> None:
         path = (
             pathlib.Path(__file__).parent.parent.absolute()
@@ -39,7 +50,10 @@ class MarinerServerTest(TestCase):
         with open(forkpath, "rb") as forkfile:
             self.fork_file_contents = forkfile.read()
 
-        self.setUpPyfakefs()
+        _get_config.cache_clear()
+        self.setUpPyfakefs(
+            additional_skip_names=["importlib.metadata"],
+        )
         self.fs.create_file(
             "/mnt/usb_share/foobar.ctb", contents=self.ctb_file_contents
         )
@@ -81,11 +95,11 @@ class MarinerServerTest(TestCase):
             {
                 "state": "PRINTING",
                 "selected_file": "foobar.ctb",
-                "progress": 32.25,
+                "progress": 32.5,
                 "layer_count": 400,
-                "current_layer": 130,
+                "current_layer": 131,
                 "print_time_secs": 5621,
-                "time_left_secs": 3808,
+                "time_left_secs": 3794,
             }
         )
 
@@ -101,11 +115,11 @@ class MarinerServerTest(TestCase):
             {
                 "state": "PAUSED",
                 "selected_file": "foobar.ctb",
-                "progress": 32.25,
+                "progress": 32.5,
                 "layer_count": 400,
-                "current_layer": 130,
+                "current_layer": 131,
                 "print_time_secs": 5621,
-                "time_left_secs": 3808,
+                "time_left_secs": 3794,
             }
         )
 

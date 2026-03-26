@@ -1,10 +1,24 @@
 {
   "source_directories": [
-    ".",
-    "stubs/"
+    "."
+  ],
+  "search_path": [
+    "stubs/",
+    {"site-package": "flask"},
+    {"site-package": "flask_caching"},
+    {"site-package": "flask_wtf"},
+    {"site-package": "werkzeug"},
+    {"site-package": "whitenoise"},
+    {"site-package": "waitress"},
+    {"site-package": "pyre_extensions"},
+    {"site-package": "Crypto"},
+    {"site-package": "pyfakefs"},
+    {"site-package": "pyexpect"},
+    {"site-package": "freezegun"}
   ],
   "exclude": [
-    ".*\/dist\/.*"
+    ".*\/dist\/.*",
+    ".*\/frontend\/.*"
   ],
   "strict": true
 }

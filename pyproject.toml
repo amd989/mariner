@@ -14,28 +14,27 @@ authors = [
 mariner = 'mariner.server:main'
 
 [tool.poetry.dependencies]
-flask = "^2.3.0"
-flask-caching = "1.10.1"
-Flask-WTF = "^1.1.0"
-pypng = "0.0.21"
-pyre-extensions = "0.0.27"
-pyserial = "3.5"
+flask = "^3.0"
+flask-caching = "^2.1"
+Flask-WTF = "^1.2"
+pypng = "^0.0.21"
+pyre-extensions = "^0.0.29"
+pyserial = "^3.5"
 python = "^3.11"
-toml = "0.10.2"
+toml = "^0.10.2"
 typedstruct = "0.1.0"
-waitress = "2.1.1"
-whitenoise = "6.0.0"
+waitress = "^3.0"
+whitenoise = "^6.5"
 pycryptodome = "^3.15.0"
 
 [tool.poetry.group.dev.dependencies]
-black = "22.3.0"
-flake8 = "4.0.1"
-freezegun = "1.2.1"
-green = "3.4.1"
+black = "^24.0"
+flake8 = "^7.0"
+freezegun = "^1.4"
+green = "^4.0"
 pyexpect = "1.0.21"
-pyfakefs = "4.5.6"
-pyre-check = "0.9.10"
-python-language-server = "0.36.2"
+pyfakefs = "^5.3"
+pyre-check = "0.9.25"
 
 [build-system]
 requires = ["poetry>=1.0.10"]

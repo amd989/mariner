@@ -1,7 +1,7 @@
 import os
 import traceback
 from enum import Enum
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, Union
 
 from flask import (
     Blueprint,
@@ -30,7 +30,7 @@ api = Blueprint("api", __name__, url_prefix="/api")
 
 
 @api.errorhandler(MarinerException)
-def handle_mariner_exception(exception: MarinerException) -> Tuple[str, int]:
+def handle_mariner_exception(exception: MarinerException) -> Tuple[Response, int]:
     tb = traceback.TracebackException.from_exception(exception)
     return (
         jsonify(
@@ -45,7 +45,7 @@ def handle_mariner_exception(exception: MarinerException) -> Tuple[str, int]:
 
 
 @api.route("/print_status", methods=["GET"])
-def print_status() -> str:
+def print_status() -> Union[str, Response]:
     with ChiTuPrinter() as printer:
 
         # the printer sends periodic "ok" responses over serial. this means that
@@ -117,7 +117,7 @@ def print_status() -> str:
 
 
 @api.route("/list_files", methods=["GET"])
-def list_files() -> str:
+def list_files() -> Union[str, Response]:
     path_parameter = str(request.args.get("path", "."))
     path = (config.get_files_directory() / path_parameter).resolve()
     files_directory_resolved = config.get_files_directory().resolve()
@@ -176,7 +176,7 @@ def list_files() -> str:
 
 
 @api.route("/file_details", methods=["GET"])
-def file_details() -> str:
+def file_details() -> Union[str, Response]:
     filename = str(request.args.get("filename"))
     path = (config.get_files_directory() / filename).resolve()
     files_directory_resolved = config.get_files_directory().resolve()
@@ -203,20 +203,21 @@ def file_details() -> str:
 
 
 @api.route("/upload_file", methods=["POST"])
-def upload_file() -> str:
+def upload_file() -> Union[str, Response]:
     file = request.files.get("file")
     if file is None or file.filename == "":
         abort(400)
-    if get_file_extension(file.filename) not in get_supported_extensions():
+    file_filename: str = none_throws(file.filename)
+    if get_file_extension(file_filename) not in get_supported_extensions():
         abort(400)
-    filename = secure_filename(file.filename)
+    filename = secure_filename(file_filename)
     file.save(str(config.get_files_directory() / filename))
     os.sync()
     return jsonify({"success": True})
 
 
 @api.route("/delete_file", methods=["POST"])
-def delete_file() -> str:
+def delete_file() -> Union[str, Response]:
     filename = str(request.args.get("filename"))
     path = (config.get_files_directory() / filename).resolve()
     files_directory_resolved = config.get_files_directory().resolve()
@@ -266,7 +267,7 @@ class PrinterCommand(Enum):
 
 
 @api.route("/printer/command/<command>", methods=["POST"])
-def printer_command(command: str) -> str:
+def printer_command(command: str) -> Union[str, Response]:
     printer_command = PrinterCommand(command)
     with ChiTuPrinter() as printer:
         if printer_command == PrinterCommand.START_PRINT:

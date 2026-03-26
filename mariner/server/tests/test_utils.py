@@ -26,12 +26,12 @@ class RetryTest(TestCase):
                 Exception,
                 num_retries=2,
             )
-        self.assertEquals(self.num_attempts, 3)
+        self.assertEqual(self.num_attempts, 3)
 
     def test_catch_a_different_exception(self) -> None:
-        class A(Exception): ...
+        class A(Exception): ...  # noqa: E701
 
-        class B(Exception): ...
+        class B(Exception): ...  # noqa: E701
 
         def _always_fail_with_b() -> None:
             self.num_attempts += 1
@@ -44,7 +44,7 @@ class RetryTest(TestCase):
                 A,
                 num_retries=2,
             )
-        self.assertEquals(self.num_attempts, 1)
+        self.assertEqual(self.num_attempts, 1)
 
     def test_success_fully_returns_after_two_attempts(self) -> None:
         def _fails_sometimes() -> int:
@@ -59,5 +59,5 @@ class RetryTest(TestCase):
             Exception,
             num_retries=1,
         )
-        self.assertEquals(self.num_attempts, 2)
-        self.assertEquals(ret, 42)
+        self.assertEqual(self.num_attempts, 2)
+        self.assertEqual(ret, 42)
