@@ -4,7 +4,7 @@
 include /usr/share/dpkg/architecture.mk
 
 %:
-	dh $@ --with python-virtualenv --with=systemd
+	dh $@ --with python-virtualenv
 
 DEB_DEBIAN_DIR=$(dir $(firstword $(MAKEFILE_LIST)))
 DEB_UPSTREAM_VERSION=$(shell dpkg-parsechangelog -l$(DEB_DEBIAN_DIR)/changelog \

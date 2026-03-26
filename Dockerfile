@@ -1,32 +1,36 @@
-FROM balenalib/raspberry-pi-debian:latest
-
-RUN apt-get update && apt-get -y upgrade && apt-get update
-RUN apt-get -y install sudo dpkg-dev debhelper dh-virtualenv \
-  python3 python3-venv python3-pip nodejs npm
-
-# RUN python3 -m pip install --upgrade pip
-RUN apt-get -y install libxslt-dev libxml2-dev
-RUN apt-get -y install build-essential libssl-dev libffi-dev python3-dev pkg-config
-RUN apt-get -y install zlib1g-dev
-RUN bash -c "curl https://sh.rustup.rs -sSf | sh -s -- -y"
-ENV PATH="/root/.cargo/bin:${PATH}"
-RUN bash -c "curl -sSL https://install.python-poetry.org | python3 -"
-
-ENV PATH=$PATH:/root/.local/bin \
-  DEB_BUILD_ARCH=armhf \
-  DEB_BUILD_ARCH_BITS=32 \
-  PIP_DEFAULT_TIMEOUT=600 \
-  PIP_TIMEOUT=600 \
-  PIP_RETRIES=100
-
-RUN mkdir /build
-COPY . /build/
-
+# Stage 1: Build frontend
+FROM node:20-slim AS frontend-builder
 WORKDIR /build/frontend
-RUN npm install && npm run build
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build
 
+# Stage 2: Build Python package
+FROM python:3.11-slim AS python-builder
+RUN pip install --no-cache-dir poetry
 WORKDIR /build
-RUN /root/.local/bin/poetry build
+COPY pyproject.toml poetry.lock ./
+RUN poetry config virtualenvs.in-project true && \
+    poetry install --only main --no-root
+COPY . .
+RUN poetry install --only main
 
-WORKDIR /build/dist
-RUN dpkg-buildpackage -us -uc
+# Stage 3: Runtime
+FROM python:3.11-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libxml2 libxslt1.1 zlib1g \
+  && rm -rf /var/lib/apt/lists/* \
+  && useradd -r -s /sbin/nologin -d /nonexistent mariner \
+  && usermod -aG dialout mariner
+
+COPY --from=python-builder /build/.venv /opt/venvs/mariner3d
+COPY --from=frontend-builder /build/frontend/dist /opt/venvs/mariner3d/dist
+COPY config.toml /etc/mariner/config.toml
+
+ENV PATH="/opt/venvs/mariner3d/bin:${PATH}"
+
+EXPOSE 5000
+USER mariner
+ENTRYPOINT ["mariner"]

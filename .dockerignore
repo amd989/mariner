@@ -1,0 +1,15 @@
+.git
+.github
+.claude
+.pyre_configuration
+.flake8
+*.pyc
+__pycache__
+.venv
+node_modules
+frontend/node_modules
+dist/debian
+dist/rpm
+stubs
+poetry.toml
+*.egg-info

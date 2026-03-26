@@ -1,0 +1,10 @@
+[Unit]
+Description=mariner3d Printer Controller
+
+[Service]
+User=mariner
+ExecStart=/usr/bin/mariner
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target
