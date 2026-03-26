@@ -1,10 +1,24 @@
 {
   "compilerOptions": {
-    "incremental": true,
-    "esModuleInterop": true,
-    "jsx": "react",
-    "outDir": "./.typescript/",
-    "strict": true,
-    "skipLibCheck": true
-  }
+    "allowJs": true,
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "skipLibCheck": true,
+    "strictNullChecks": false
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }

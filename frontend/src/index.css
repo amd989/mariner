@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 16% 96%;
+    --foreground: 220 20% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 10%;
+
+    --primary: 175 70% 40%;
+    --primary-foreground: 220 20% 6%;
+
+    --secondary: 220 14% 90%;
+    --secondary-foreground: 220 20% 10%;
+
+    --muted: 220 14% 92%;
+    --muted-foreground: 220 10% 46%;
+
+    --accent: 175 70% 40%;
+    --accent-foreground: 220 20% 6%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 38 92% 14%;
+
+    --success: 142 71% 40%;
+    --success-foreground: 142 71% 10%;
+
+    --border: 220 14% 86%;
+    --input: 220 14% 86%;
+    --ring: 175 70% 40%;
+
+    --radius: 0.375rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 175 70% 40%;
+
+    --font-display: 'Space Grotesk', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    --font-body: 'Space Grotesk', system-ui, sans-serif;
+  }
+
+  .dark {
+    --background: 220 20% 7%;
+    --foreground: 220 14% 90%;
+
+    --card: 220 18% 10%;
+    --card-foreground: 220 14% 90%;
+
+    --popover: 220 18% 10%;
+    --popover-foreground: 220 14% 90%;
+
+    --primary: 175 70% 45%;
+    --primary-foreground: 220 20% 6%;
+
+    --secondary: 220 16% 16%;
+    --secondary-foreground: 220 14% 90%;
+
+    --muted: 220 16% 14%;
+    --muted-foreground: 220 10% 54%;
+
+    --accent: 175 70% 45%;
+    --accent-foreground: 220 20% 6%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 38 92% 14%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 142 71% 10%;
+
+    --border: 220 16% 18%;
+    --input: 220 16% 18%;
+    --ring: 175 70% 45%;
+
+    --sidebar-background: 220 20% 8%;
+    --sidebar-foreground: 220 14% 90%;
+    --sidebar-primary: 175 70% 45%;
+    --sidebar-primary-foreground: 220 20% 6%;
+    --sidebar-accent: 220 16% 14%;
+    --sidebar-accent-foreground: 220 14% 90%;
+    --sidebar-border: 220 16% 18%;
+    --sidebar-ring: 175 70% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  .font-body {
+    font-family: var(--font-body);
+  }
+}
