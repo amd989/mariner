@@ -17,7 +17,12 @@ dist/mariner-*
 dist/debian/.debhelper/
 dist/debian/mariner3d.debhelper.log
 dist/debian/mariner3d/
-frontend/.yarn/cache/
 
 # Sphinx
 _build/
+
+.playwright-cli
+.playwright-mcp
+.playwright
+.mcp.json
+.vscode

@@ -32,8 +32,7 @@ use `Poetry <https://python-poetry.org/>`_ for dependency management, so you
 should have that installed as well.
 
 If you would like to do frontend development, you should have `node.js
-<https://nodejs.org/en/>`_ and the `yarn
-<https://yarnpkg.com/getting-started/install>`__ package manager.
+<https://nodejs.org/en/>`_ installed (which includes ``npm``).
 
 Once you have those dependencies installed, you can get your virtual
 environment setup with all the required Python dependencies with ``poetry``::
@@ -89,44 +88,39 @@ Frontend
 ~~~~~~~~
 
 The mariner frontend code is largely written in `TypeScript
-<https://www.typescriptlang.org/>`_ with `React <https://reactjs.org/>`_. Most
-of the frontend is built with `Material-UI <https://material-ui.com/>`_
-components. HTTP requests are made to the backend API endpoints with `Axios
-<https://axios-http.com/>`_. We use `yarn
-<https://classic.yarnpkg.com/en/docs/install/>`__ to manage our frontend
-dependencies, so make sure to have that installed before you move forward.
+<https://www.typescriptlang.org/>`_ with `React <https://reactjs.org/>`_. The
+UI is built with `Tailwind CSS <https://tailwindcss.com/>`_ and `shadcn/ui
+<https://ui.shadcn.com/>`_ components. Data fetching is handled by `React Query
+<https://tanstack.com/query>`_. We use `Vite <https://vitejs.dev/>`_ as the
+build tool and ``npm`` to manage frontend dependencies.
 
 All of the frontend source code lives in the ``frontend`` directory. So ``cd``
 into that directory and install the JS dependencies with::
 
-   $ yarn install
+   $ npm install
 
 In order to run ``mariner`` locally, you will want to package the frontend code
 into a static resource that can be served by the backend. Do this with::
 
-   $ yarn build
+   $ npm run build
 
-If successful, a ``main.js`` will be generated under the ``dist`` directory.
+If successful, the built assets will be generated under the ``dist`` directory.
 Now you should be able to run mariner locally with ``poetry run mariner`` as
 described on the :ref:`Backend <Backend>` section.
 
+For development, you can run the Vite dev server which proxies API requests to
+the Flask backend::
+
+   $ npm run dev
+
 You can run the frontend tests with the following command::
 
-   $ yarn --cwd frontend test
+   $ npm test
 
 Just like on the backend, we use a few tools to hold the style guidelines and
 best practices of the codebase. So make sure to do these checks on your code:
 
-* `ESLint <https://eslint.org/>`_ issues with: ``yarn lint``
-* Formatting issues with `prettier <https://prettier.io/>`_:
-  ``yarn run prettier --cwd src``
-* Typing issues with: ``yarn run tsc``
-
-* Passes all `Flake8 <https://flake8.pycqa.org/en/latest/>`_ checks:
-  ``poetry run flake8``
-* Is auto-formatted with `Black <https://black.readthedocs.io/en/stable/>`_:
-  ``poetry run black --check .``
-* Is type-checked with `pyre <https://pyre-check.org/>`_: ``poetry run pyre``
+* `ESLint <https://eslint.org/>`_ issues with: ``npm run lint``
 
 
 Pre-commit Hooks
