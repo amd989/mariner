@@ -21,7 +21,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: "**/node_modules"
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
 
       - name: Extract Debian full package version
         run: >-
@@ -56,10 +56,10 @@ jobs:
           docker run --rm --privileged multiarch/qemu-user-static:register
           --reset
 
-      - name: Install yarn packages
-        run: cd frontend/ && yarn install
+      - name: Install npm packages
+        run: cd frontend/ && npm install
       - name: Build frontend assets
-        run: cd frontend/ && yarn build
+        run: cd frontend/ && npm run build
 
       - name: Compute Debian package name
         run: >-

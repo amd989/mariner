@@ -46,12 +46,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - run: yarn install
-      - run: yarn lint
-      - run: yarn run prettier --check src
-      - run: yarn run tsc
-      - run: yarn build
-      - run: yarn test --coverage --collectCoverageFrom "src/**/*"
+      - run: npm install
+      - run: npm run lint
+      - run: npx prettier --check src
+      - run: npx tsc
+      - run: npm run build
+      - run: npx vitest run --coverage
       - run: mv coverage/coverage-final.json ../frontend-coverage.json
       - uses: actions/upload-artifact@v4
         with:
