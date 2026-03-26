@@ -64,7 +64,7 @@ npm run lint
 
 ## Key Technical Details
 
-- Python backend uses Poetry for dependency management (Python ^3.7, !=3.9)
+- Python backend uses Poetry for dependency management (Python ^3.11)
 - Frontend uses npm with Vite, Vitest for testing
 - File format encryption/decryption handled in `mariner/file_formats/cipher.py` and `ctb_encrypted.py`
 - Flask app serves frontend static files via WhiteNoise middleware
