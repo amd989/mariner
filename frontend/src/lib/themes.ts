@@ -81,7 +81,10 @@ export function getStoredThemeId(): string {
 export function applyTheme(themeId: string) {
   const theme = themes.find((t) => t.id === themeId) || themes[0];
   // Apply to both :root and the .dark container so variables aren't shadowed
-  const targets = [document.documentElement, document.querySelector('.dark')].filter(Boolean) as HTMLElement[];
+  const targets = [
+    document.documentElement,
+    document.querySelector(".dark"),
+  ].filter(Boolean) as HTMLElement[];
   targets.forEach((el) => {
     Object.entries(theme.vars).forEach(([key, value]) => {
       el.style.setProperty(`--${key}`, value);

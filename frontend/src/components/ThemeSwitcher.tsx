@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { Palette } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { themes, getStoredThemeId, applyTheme } from "@/lib/themes";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +26,9 @@ export function ThemeSwitcher() {
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-52 p-2">
-        <p className="mb-2 px-2 text-xs font-medium text-muted-foreground">Printer Theme</p>
+        <p className="mb-2 px-2 text-xs font-medium text-muted-foreground">
+          Printer Theme
+        </p>
         <div className="space-y-0.5">
           {themes.map((theme) => (
             <button
@@ -32,7 +38,7 @@ export function ThemeSwitcher() {
                 "flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors",
                 activeId === theme.id
                   ? "bg-muted font-medium text-foreground"
-                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
               )}
             >
               <span

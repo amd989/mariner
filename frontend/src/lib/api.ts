@@ -42,10 +42,7 @@ function getCsrfToken(): string | null {
   return meta?.getAttribute("content") ?? null;
 }
 
-async function apiFetch<T>(
-  url: string,
-  options: RequestInit = {}
-): Promise<T> {
+async function apiFetch<T>(url: string, options: RequestInit = {}): Promise<T> {
   const headers: Record<string, string> = {
     ...(options.headers as Record<string, string>),
   };
@@ -69,13 +66,13 @@ export const api = {
 
   async listFiles(path: string = "."): Promise<FileListResponse> {
     return apiFetch<FileListResponse>(
-      `/api/list_files?path=${encodeURIComponent(path)}`
+      `/api/list_files?path=${encodeURIComponent(path)}`,
     );
   },
 
   async fileDetails(filename: string): Promise<FileDetailsResponse> {
     return apiFetch<FileDetailsResponse>(
-      `/api/file_details?filename=${encodeURIComponent(filename)}`
+      `/api/file_details?filename=${encodeURIComponent(filename)}`,
     );
   },
 
@@ -98,18 +95,19 @@ export const api = {
   },
 
   async deleteFile(filename: string): Promise<void> {
-    await apiFetch(`/api/delete_file?filename=${encodeURIComponent(filename)}`, {
-      method: "POST",
-    });
+    await apiFetch(
+      `/api/delete_file?filename=${encodeURIComponent(filename)}`,
+      {
+        method: "POST",
+      },
+    );
   },
 
   async printerCommand(
     command: "start_print" | "pause_print" | "resume_print" | "cancel_print",
-    filename?: string
+    filename?: string,
   ): Promise<void> {
-    const params = filename
-      ? `?filename=${encodeURIComponent(filename)}`
-      : "";
+    const params = filename ? `?filename=${encodeURIComponent(filename)}` : "";
     await apiFetch(`/api/printer/command/${command}${params}`, {
       method: "POST",
     });

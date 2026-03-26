@@ -10,7 +10,7 @@ describe("PrintControls", () => {
         onPause={vi.fn()}
         onResume={vi.fn()}
         onCancel={vi.fn()}
-      />
+      />,
     );
     expect(screen.getByText("Pause")).toBeInTheDocument();
     expect(screen.queryByText("Resume")).not.toBeInTheDocument();
@@ -23,7 +23,7 @@ describe("PrintControls", () => {
         onPause={vi.fn()}
         onResume={vi.fn()}
         onCancel={vi.fn()}
-      />
+      />,
     );
     expect(screen.getByText("Resume")).toBeInTheDocument();
     expect(screen.queryByText("Pause")).not.toBeInTheDocument();
@@ -36,7 +36,7 @@ describe("PrintControls", () => {
         onPause={vi.fn()}
         onResume={vi.fn()}
         onCancel={vi.fn()}
-      />
+      />,
     );
     expect(screen.getByText("Cancel")).toBeInTheDocument();
 
@@ -46,7 +46,7 @@ describe("PrintControls", () => {
         onPause={vi.fn()}
         onResume={vi.fn()}
         onCancel={vi.fn()}
-      />
+      />,
     );
     expect(screen.getByText("Cancel")).toBeInTheDocument();
   });
@@ -59,7 +59,7 @@ describe("PrintControls", () => {
         onPause={onPause}
         onResume={vi.fn()}
         onCancel={vi.fn()}
-      />
+      />,
     );
     fireEvent.click(screen.getByText("Pause"));
     expect(onPause).toHaveBeenCalledOnce();
@@ -73,7 +73,7 @@ describe("PrintControls", () => {
         onPause={vi.fn()}
         onResume={onResume}
         onCancel={vi.fn()}
-      />
+      />,
     );
     fireEvent.click(screen.getByText("Resume"));
     expect(onResume).toHaveBeenCalledOnce();
@@ -87,7 +87,7 @@ describe("PrintControls", () => {
         onPause={vi.fn()}
         onResume={vi.fn()}
         onCancel={onCancel}
-      />
+      />,
     );
     fireEvent.click(screen.getByText("Cancel"));
     expect(onCancel).toHaveBeenCalledOnce();

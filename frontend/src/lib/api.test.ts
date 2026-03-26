@@ -90,7 +90,7 @@ describe("api client", () => {
     await api.listFiles("subdir");
     expect(fetch).toHaveBeenCalledWith(
       "/api/list_files?path=subdir",
-      expect.any(Object)
+      expect.any(Object),
     );
   });
 
@@ -122,7 +122,7 @@ describe("api client", () => {
         headers: expect.objectContaining({
           "X-CSRFToken": "test-csrf-token",
         }),
-      })
+      }),
     );
 
     document.head.removeChild(meta);
@@ -137,7 +137,7 @@ describe("api client", () => {
     await api.printerCommand("pause_print");
     expect(fetch).toHaveBeenCalledWith(
       "/api/printer/command/pause_print",
-      expect.objectContaining({ method: "POST" })
+      expect.objectContaining({ method: "POST" }),
     );
   });
 
@@ -150,13 +150,13 @@ describe("api client", () => {
     await api.printerCommand("start_print", "test.ctb");
     expect(fetch).toHaveBeenCalledWith(
       "/api/printer/command/start_print?filename=test.ctb",
-      expect.objectContaining({ method: "POST" })
+      expect.objectContaining({ method: "POST" }),
     );
   });
 
   it("generates correct file preview URL", () => {
     expect(api.filePreviewUrl("subdir/test.ctb")).toBe(
-      "/api/file_preview?filename=subdir%2Ftest.ctb"
+      "/api/file_preview?filename=subdir%2Ftest.ctb",
     );
   });
 });

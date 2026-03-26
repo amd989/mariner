@@ -38,7 +38,9 @@ export function PrintProgress({ job }: PrintProgressProps) {
 
       {/* File name */}
       <div className="rounded-md bg-muted px-3 py-2 text-center">
-        <span className="font-mono text-sm text-muted-foreground">{job.fileName}</span>
+        <span className="font-mono text-sm text-muted-foreground">
+          {job.fileName}
+        </span>
       </div>
     </div>
   );

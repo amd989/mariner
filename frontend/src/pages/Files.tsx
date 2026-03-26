@@ -43,9 +43,7 @@ export default function Files() {
         return parts.length === 0 ? "." : parts.join("/");
       });
     } else {
-      setCurrentPath((prev) =>
-        prev === "." ? dirname : `${prev}/${dirname}`
-      );
+      setCurrentPath((prev) => (prev === "." ? dirname : `${prev}/${dirname}`));
     }
   };
 
