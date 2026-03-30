@@ -8,6 +8,9 @@ RUN npm run build
 
 # Stage 2: Build Python package
 FROM python:3.11-slim AS python-builder
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential libffi-dev \
+  && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir poetry
 WORKDIR /build
 COPY pyproject.toml poetry.lock ./

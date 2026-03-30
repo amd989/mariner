@@ -116,7 +116,7 @@ jobs:
 
               dnf install -y epel-release
               dnf config-manager --set-enabled crb
-              dnf install -y \
+              dnf install -y --allowerasing \
                 gcc make python3.11-devel python3.11-pip python3.11-setuptools \
                 libffi-devel openssl-devel libxml2-devel libxslt-devel \
                 zlib-devel rpm-build systemd-rpm-macros nodejs npm curl git
