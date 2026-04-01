@@ -1,42 +1,118 @@
 <!DOCTYPE html>
-<html>
-<head><title>Mariner 2 Package Repository</title></head>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mariner3d - Package Repository</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2029;
+      --border: #2d3640;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-hover: #79b8ff;
+      --code-bg: #161b22;
+      --green: #3fb950;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 3rem; }
+    header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    header p { color: var(--muted); font-size: 1.1rem; }
+    header .links { margin-top: 1rem; }
+    header .links a {
+      color: var(--accent);
+      text-decoration: none;
+      margin: 0 0.75rem;
+    }
+    header .links a:hover { color: var(--accent-hover); text-decoration: underline; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card h2 {
+      font-size: 1.15rem;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card .distros {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      position: relative;
+    }
+    code { font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
+    .prompt { color: var(--muted); user-select: none; }
+    .cmd { color: var(--green); }
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
 <body>
-<h1>Mariner 2 Package Repository</h1>
-<p>Web application for controlling MSLA 3D Printers based on ChiTu controllers.</p>
+  <div class="container">
+    <header>
+      <h1>mariner3d</h1>
+      <p>MSLA 3D Printer Controller &mdash; Package Repository</p>
+      <p style="margin-top: 0.75rem;"><span style="background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem 0.75rem; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.9rem; color: var(--green);">v0.4.1</span></p>
+      <div class="links">
+        <a href="https://github.com/amd989/mariner">GitHub</a>
+        <a href="https://github.com/amd989/mariner/releases">Releases</a>
+        <a href="https://github.com/amd989/mariner#readme">Documentation</a>
+      </div>
+    </header>
 
-<h2>Debian / Ubuntu / Raspberry Pi OS (apt)</h2>
-<h3>Quick Install</h3>
-<pre>
-curl -fsSL https://amd989.github.io/mariner/setup.sh | sudo bash
-sudo apt install mariner3d
-</pre>
-<h3>Manual Setup</h3>
-<pre>
-curl -fsSL https://amd989.github.io/mariner/gpg.key | sudo gpg --dearmor -o /usr/share/keyrings/mariner3d.gpg
-echo "deb [signed-by=/usr/share/keyrings/mariner3d.gpg] https://amd989.github.io/mariner stable main" | sudo tee /etc/apt/sources.list.d/mariner3d.list
-sudo apt update
-sudo apt install mariner3d
-</pre>
+    <div class="card">
+      <h2>apt</h2>
+      <div class="distros">Debian, Ubuntu, Raspberry Pi OS</div>
+      <pre><code><span class="prompt">$ </span><span class="cmd">curl -fsSL https://amd989.github.io/mariner/setup-apt.sh | sudo bash</span>
+<span class="prompt">$ </span><span class="cmd">sudo apt install mariner3d</span></code></pre>
+    </div>
 
-<h2>Rocky Linux / RHEL / Fedora (dnf)</h2>
-<h3>Quick Install</h3>
-<pre>
-curl -fsSL https://amd989.github.io/mariner/setup-rpm.sh | sudo bash
-sudo dnf install mariner3d
-</pre>
-<h3>Manual Setup</h3>
-<pre>
-sudo rpm --import https://amd989.github.io/mariner/gpg.key
-sudo tee /etc/yum.repos.d/mariner3d.repo &lt;&lt;EOF
-[mariner3d]
-name=Mariner 2 - MSLA 3D Printer Controller
-baseurl=https://amd989.github.io/mariner/rpm/
-enabled=1
-gpgcheck=1
-gpgkey=https://amd989.github.io/mariner/gpg.key
-EOF
-sudo dnf install mariner3d
-</pre>
+    <div class="card">
+      <h2>dnf / yum</h2>
+      <div class="distros">Fedora, RHEL, Rocky Linux</div>
+      <pre><code><span class="prompt">$ </span><span class="cmd">curl -fsSL https://amd989.github.io/mariner/setup-rpm.sh | sudo bash</span>
+<span class="prompt">$ </span><span class="cmd">sudo dnf install mariner3d</span></code></pre>
+    </div>
+
+    <div class="card">
+      <h2>Docker</h2>
+      <div class="distros">Any platform with Docker</div>
+      <pre><code><span class="prompt">$ </span><span class="cmd">docker pull ghcr.io/amd989/mariner:latest</span>
+<span class="prompt">$ </span><span class="cmd">docker compose up -d</span></code></pre>
+    </div>
+
+    <footer>
+      <p>Packages are built and signed automatically on each <a href="https://github.com/amd989/mariner/releases">release</a>.</p>
+    </footer>
+  </div>
 </body>
 </html>

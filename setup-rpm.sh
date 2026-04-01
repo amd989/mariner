@@ -10,4 +10,4 @@ enabled=1
 gpgcheck=1
 gpgkey=https://amd989.github.io/mariner/gpg.key
 REPOEOF
-echo "Done! You can now run: sudo dnf install mariner3d"
+echo "Done! Run: sudo dnf install mariner3d"
