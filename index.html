@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head><title>Mariner 2 Package Repository</title></head>
+<body>
+<h1>Mariner 2 Package Repository</h1>
+<p>Web application for controlling MSLA 3D Printers based on ChiTu controllers.</p>
+
+<h2>Debian / Ubuntu / Raspberry Pi OS (apt)</h2>
+<h3>Quick Install</h3>
+<pre>
+curl -fsSL https://amd989.github.io/mariner/setup.sh | sudo bash
+sudo apt install mariner3d
+</pre>
+<h3>Manual Setup</h3>
+<pre>
+curl -fsSL https://amd989.github.io/mariner/gpg.key | sudo gpg --dearmor -o /usr/share/keyrings/mariner3d.gpg
+echo "deb [signed-by=/usr/share/keyrings/mariner3d.gpg] https://amd989.github.io/mariner stable main" | sudo tee /etc/apt/sources.list.d/mariner3d.list
+sudo apt update
+sudo apt install mariner3d
+</pre>
+
+<h2>Rocky Linux / RHEL / Fedora (dnf)</h2>
+<h3>Quick Install</h3>
+<pre>
+curl -fsSL https://amd989.github.io/mariner/setup-rpm.sh | sudo bash
+sudo dnf install mariner3d
+</pre>
+<h3>Manual Setup</h3>
+<pre>
+sudo rpm --import https://amd989.github.io/mariner/gpg.key
+sudo tee /etc/yum.repos.d/mariner3d.repo &lt;&lt;EOF
+[mariner3d]
+name=Mariner 2 - MSLA 3D Printer Controller
+baseurl=https://amd989.github.io/mariner/rpm/
+enabled=1
+gpgcheck=1
+gpgkey=https://amd989.github.io/mariner/gpg.key
+EOF
+sudo dnf install mariner3d
+</pre>
+</body>
+</html>

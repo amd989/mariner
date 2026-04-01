@@ -1,0 +1,5 @@
+Component: main
+Origin: mariner3d
+Label: mariner3d
+Architecture: amd64
+Description: Mariner 2 - MSLA 3D Printer Controller
