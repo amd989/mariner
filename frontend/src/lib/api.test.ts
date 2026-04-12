@@ -159,4 +159,17 @@ describe("api client", () => {
       "/api/file_preview?filename=subdir%2Ftest.ctb",
     );
   });
+
+  it("creates a directory with POST", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ success: true }),
+    } as Response);
+
+    await api.createDirectory("foo/bar", "new_dir");
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/create_directory?path=foo%2Fbar&name=new_dir",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
 });

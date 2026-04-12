@@ -103,6 +103,16 @@ export const api = {
     );
   },
 
+  async createDirectory(parentPath: string, name: string): Promise<void> {
+    const params = new URLSearchParams({
+      path: parentPath,
+      name,
+    });
+    await apiFetch(`/api/create_directory?${params.toString()}`, {
+      method: "POST",
+    });
+  },
+
   async printerCommand(
     command: "start_print" | "pause_print" | "resume_print" | "cancel_print",
     filename?: string,

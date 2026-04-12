@@ -296,6 +296,43 @@ def delete_file() -> Union[str, Response]:
     return jsonify({"success": True})
 
 
+@api.route("/create_directory", methods=["POST"])
+def create_directory() -> Union[str, Response]:
+    path_parameter = str(request.args.get("path", "."))
+    raw_name = request.args.get("name", type=str)
+    if raw_name is None or not raw_name.strip():
+        abort(400)
+    name_str = raw_name.strip()
+    if "/" in name_str or "\\" in name_str or name_str in (".", ".."):
+        abort(400)
+
+    safe_name = secure_filename(name_str)
+    if not safe_name or safe_name in (".", ".."):
+        abort(400)
+
+    files_directory_resolved = config.get_files_directory().resolve()
+    parent = (config.get_files_directory() / path_parameter).resolve()
+    if (
+        files_directory_resolved not in parent.parents
+        and parent != files_directory_resolved
+    ):
+        abort(400)
+    if not os.path.isdir(parent):
+        abort(400)
+
+    new_path = (parent / safe_name).resolve()
+    try:
+        new_path.relative_to(files_directory_resolved)
+    except ValueError:
+        abort(400)
+
+    try:
+        os.mkdir(new_path)
+    except FileExistsError:
+        abort(400)
+    return jsonify({"success": True})
+
+
 @api.route("/file_preview", methods=["GET"])
 def file_preview() -> Response:
     filename = str(request.args.get("filename"))
