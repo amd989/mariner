@@ -243,9 +243,7 @@ export default function Files() {
             </Button>
             <Button
               type="button"
-              disabled={
-                !newFolderName.trim() || createFolderMutation.isPending
-              }
+              disabled={!newFolderName.trim() || createFolderMutation.isPending}
               onClick={handleCreateFolder}
             >
               {createFolderMutation.isPending ? (

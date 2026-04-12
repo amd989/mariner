@@ -179,7 +179,9 @@ describe("api client", () => {
       json: () => Promise.resolve({ success: true }),
     } as Response);
 
-    const file = new File(["x"], "test.ctb", { type: "application/octet-stream" });
+    const file = new File(["x"], "test.ctb", {
+      type: "application/octet-stream",
+    });
     await api.uploadFile(file, "foo/bar");
     expect(fetch).toHaveBeenCalledWith(
       "/api/upload_file?path=foo%2Fbar",
