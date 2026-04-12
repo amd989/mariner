@@ -451,24 +451,20 @@ class MarinerServerTest(TestCase):
         expect(response.status_code).to_equal(400)
 
     def test_create_directory(self) -> None:
-        response = self.client.post(
-            "/api/create_directory?path=.&name=my_project"
-        )
+        response = self.client.post("/api/create_directory?path=.&name=my_project")
         expect(response.status_code).to_equal(200)
         expect(response.get_json()).to_equal({"success": True})
-        expect(
-            os.path.isdir(config.get_files_directory() / "my_project")
-        ).to_equal(True)
+        expect(os.path.isdir(config.get_files_directory() / "my_project")).to_equal(
+            True
+        )
 
     def test_create_directory_under_subdirectory(self) -> None:
         self.fs.create_dir("/mnt/usb_share/nested/")
-        response = self.client.post(
-            "/api/create_directory?path=nested&name=sub"
-        )
+        response = self.client.post("/api/create_directory?path=nested&name=sub")
         expect(response.status_code).to_equal(200)
-        expect(
-            os.path.isdir(config.get_files_directory() / "nested" / "sub")
-        ).to_equal(True)
+        expect(os.path.isdir(config.get_files_directory() / "nested" / "sub")).to_equal(
+            True
+        )
 
     def test_create_directory_duplicate(self) -> None:
         self.fs.create_dir("/mnt/usb_share/exists/")
@@ -476,9 +472,7 @@ class MarinerServerTest(TestCase):
         expect(response.status_code).to_equal(400)
 
     def test_create_directory_invalid_parent_path(self) -> None:
-        response = self.client.post(
-            "/api/create_directory?path=../etc&name=bad"
-        )
+        response = self.client.post("/api/create_directory?path=../etc&name=bad")
         expect(response.status_code).to_equal(400)
 
     def test_create_directory_missing_name(self) -> None:
