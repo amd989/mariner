@@ -3,7 +3,7 @@ import multiprocessing
 import os
 from typing import Dict
 
-from flask import render_template
+from flask import abort, render_template
 from waitress import serve
 
 from mariner import config
@@ -21,8 +21,7 @@ from itertools import chain
 flask_app.register_blueprint(api_blueprint)
 
 
-@flask_app.route("/", methods=["GET"])
-def index() -> str:
+def render_index() -> str:
     template_vars: Dict[str, str] = {
         "supported_extensions": ",".join(get_supported_extensions()),
     }
@@ -30,6 +29,19 @@ def index() -> str:
     if printer_display_name is not None:
         template_vars["printer_display_name"] = printer_display_name
     return render_template("index.html", **template_vars)
+
+
+@flask_app.route("/", methods=["GET"])
+def index() -> str:
+    return render_index()
+
+
+@flask_app.get("/<path:spa_path>")
+def spa_fallback(spa_path: str) -> str:
+    # Let /api/* hit the API blueprint; everything else is a client-side route.
+    if spa_path == "api" or spa_path.startswith("api/"):
+        abort(404)
+    return render_index()
 
 
 class CacheBootstrapper(multiprocessing.Process):

@@ -495,3 +495,14 @@ class MarinerServerTest(TestCase):
                 supported_extensions=ANY,
             )
         expect(response.status_code).to_equal(200)
+
+    def test_get_spa_client_route_serves_index(self) -> None:
+        with patch(
+            "mariner.server.render_template", return_value=""
+        ) as render_template_mock:
+            response = self.client.get("/files")
+            render_template_mock.assert_called_with(
+                "index.html",
+                supported_extensions=ANY,
+            )
+        expect(response.status_code).to_equal(200)
