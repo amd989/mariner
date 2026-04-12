@@ -84,7 +84,7 @@ export default function Files() {
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    await api.uploadFile(file);
+    await api.uploadFile(file, currentPath);
     queryClient.invalidateQueries({ queryKey: ["files", currentPath] });
     e.target.value = "";
   };

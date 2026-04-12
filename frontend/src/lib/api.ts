@@ -80,13 +80,14 @@ export const api = {
     return `/api/file_preview?filename=${encodeURIComponent(filename)}`;
   },
 
-  async uploadFile(file: File): Promise<void> {
+  async uploadFile(file: File, path: string = "."): Promise<void> {
     const formData = new FormData();
     formData.append("file", file);
     const csrf = getCsrfToken();
     const headers: Record<string, string> = {};
     if (csrf) headers["X-CSRFToken"] = csrf;
-    const res = await fetch("/api/upload_file", {
+    const q = new URLSearchParams({ path });
+    const res = await fetch(`/api/upload_file?${q.toString()}`, {
       method: "POST",
       headers,
       body: formData,

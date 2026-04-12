@@ -273,7 +273,25 @@ def upload_file() -> Union[str, Response]:
     if get_file_extension(file_filename) not in get_supported_extensions():
         abort(400)
     filename = secure_filename(file_filename)
-    file.save(str(config.get_files_directory() / filename))
+
+    path_parameter = str(request.args.get("path", "."))
+    files_directory_resolved = config.get_files_directory().resolve()
+    parent = (config.get_files_directory() / path_parameter).resolve()
+    if (
+        files_directory_resolved not in parent.parents
+        and parent != files_directory_resolved
+    ):
+        abort(400)
+    if not os.path.isdir(parent):
+        abort(400)
+
+    dest_path = (parent / filename).resolve()
+    try:
+        dest_path.relative_to(files_directory_resolved)
+    except ValueError:
+        abort(400)
+
+    file.save(str(dest_path))
     os.sync()
     return jsonify({"success": True})
 

@@ -401,6 +401,27 @@ class MarinerServerTest(TestCase):
             str(config.get_files_directory() / "etc_passwd.ctb")
         )
 
+    def test_upload_file_to_subdirectory(self) -> None:
+        self.fs.create_dir("/mnt/usb_share/uploads/")
+        data = {"file": (io.BytesIO(b"abcdef"), "myfile.ctb")}
+        with patch.object(FileStorage, "save") as save_file_mock:
+            response = self.client.post("/api/upload_file?path=uploads", data=data)
+        expect(response.status_code).to_equal(200)
+        expect(response.get_json()).to_equal({"success": True})
+        save_file_mock.assert_called_once_with(
+            str(config.get_files_directory() / "uploads" / "myfile.ctb")
+        )
+
+    def test_upload_file_with_invalid_parent_path(self) -> None:
+        data = {"file": (io.BytesIO(b"abcdef"), "myfile.ctb")}
+        response = self.client.post("/api/upload_file?path=../../etc", data=data)
+        expect(response.status_code).to_equal(400)
+
+    def test_upload_file_to_missing_directory(self) -> None:
+        data = {"file": (io.BytesIO(b"abcdef"), "myfile.ctb")}
+        response = self.client.post("/api/upload_file?path=no_such_dir", data=data)
+        expect(response.status_code).to_equal(400)
+
     def test_delete_file(self) -> None:
         expect(os.path.exists(config.get_files_directory() / "mariner.ctb")).to_equal(
             False

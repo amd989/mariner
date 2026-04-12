@@ -172,4 +172,18 @@ describe("api client", () => {
       expect.objectContaining({ method: "POST" }),
     );
   });
+
+  it("uploads a file with path query", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ success: true }),
+    } as Response);
+
+    const file = new File(["x"], "test.ctb", { type: "application/octet-stream" });
+    await api.uploadFile(file, "foo/bar");
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/upload_file?path=foo%2Fbar",
+      expect.objectContaining({ method: "POST", body: expect.any(FormData) }),
+    );
+  });
 });
