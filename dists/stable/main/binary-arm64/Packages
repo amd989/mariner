@@ -1,18 +1,18 @@
 Package: mariner3d
-Version: 0.4.7-1
+Version: 0.4.8-1
 Architecture: arm64
 Maintainer: Alejandro Mora <mail@alejandro.md>
-Installed-Size: 68550
+Installed-Size: 68557
 Pre-Depends: dpkg (>= 1.19.1)
 Depends: libxslt1.1, libxml2, zlib1g
 Homepage: https://github.com/amd989/mariner
 Priority: optional
 Section: python
-Filename: pool/main/m/mariner3d/mariner3d_0.4.7-1_arm64.deb
-Size: 24102600
-SHA256: 9b0d19001d5748a685f57feb76c5587f865f0d19bc5416fce97997c16e716d16
-SHA1: e247e7a8ae82cb5c41a27467f2e69a626f286d9c
-MD5sum: 94724c45e689ab0c7e92110e1b588095
+Filename: pool/main/m/mariner3d/mariner3d_0.4.8-1_arm64.deb
+Size: 24369264
+SHA256: 1a64bb4a1a424aeabde519e90545e87ab5318b76c78a2f9cfa03fbed40dcf1b4
+SHA1: 690938511eb5bd1101327b16dbb92fc5f671e5b7
+MD5sum: 3803e7bc1ba9b7c62a27123de717d1a6
 Description: Web application for controlling MSLA 3D Printers based on ChiTu controllers
  Mariner 2 is a web interface for remotely controlling MSLA resin 3D printers
  that use ChiTu-based controllers. It supports multiple file formats including
@@ -20,19 +20,19 @@ Description: Web application for controlling MSLA 3D Printers based on ChiTu con
 
 Package: mariner3d-dbgsym
 Source: mariner3d
-Version: 0.4.7-1
+Version: 0.4.8-1
 Auto-Built-Package: debug-symbols
 Architecture: arm64
 Maintainer: Alejandro Mora <mail@alejandro.md>
 Installed-Size: 748
-Depends: mariner3d (= 0.4.7-1)
+Depends: mariner3d (= 0.4.8-1)
 Priority: optional
 Section: debug
-Filename: pool/main/m/mariner3d/mariner3d-dbgsym_0.4.7-1_arm64.deb
+Filename: pool/main/m/mariner3d/mariner3d-dbgsym_0.4.8-1_arm64.deb
 Size: 453000
-SHA256: 735b9c0f36b5741b9f0271832fa3389da367d355482831c339a993d87f993a2a
-SHA1: 99eca9e15a0ce1d60168731b15ba5357548c0c79
-MD5sum: a4f16d43373ed1f60650a42069a7b891
+SHA256: 581b82369bbf4358fad1477cb92d8da8cd079f4145b5e537f30a099906581140
+SHA1: 35b0f8e5d6606b2ecc82921390fce8d58d59a9c7
+MD5sum: d627b181f2b3094d45f7764818a08355
 Description: debug symbols for mariner3d
 Build-Ids: 00774c01a6a0805b494bb1640af5bfc98e824a67 03096c33cbf4ae010cb1c35a933b7a6b02784ef8 05cf47f666460e2f6955bfdd33e2c4ebe1313ed5 0a756bd00819fd456de8cdc9eaa9c6fda59210ef 0cc4bad74be9c3fd982011166003102b4146b3df 14672135b5810134a7610e068dc92f9b61286433 1b25dfa0477af44f8a00351f23919521a0f087f3 1ea93a04be25b2a5b225ed5500fe5106680441b5 1f09ef28ffdbf123583f86ebe953eaeafc67939c 2a83e9468b58919cad911a910b81e52d45d71c89 2bbeb7a97d7dc5ce3a8a9084d523d98d89787217 2fc1bf04cf9083f419890f7b67effc18def478a8 357459e85ca254a7d0c4cb5d37cc65272908bab5 38b264a590f7b0cfb783d2a3ac9b6e3250c40ca9 39683d325379e9cfd313c42aa43bdb3c8286ba24 3d55492ac307e6184a4d8dee0dd8efb524aa2640 45fe1cafd092931480cefdef6c205523d6f1b6e5 4c845f9f0fa0165d1394c38284374f539ebd235d 4e5a12110be600ca5ef5c669a2b80625f77d63a1 540dc2dc7bde613044a61909963552ae377e4262 58c58216af2c9237c30f397d40dc8fb42099646d 6cdd57dd37fd713b40ca748573387c0fbc615d6c 873c3c5f37ce5e05c7a151c202af19a120530a85 8cbc6a8df71063ac3380454145ae975c62273885 8f198e648e3e251f4afd060aba8ad14a0777f9c6 9a59c33c4bb597471469ce0e62cee84133bf770b a6a79914778dabfddbe83c4d5273a193e5e91a38 ad0390cca37db30ef098507578c224f01bd7bf65 c924265dc4eb49a995384bbd4146e030dfdf0601 c9431bf53a68456c10ee87f3c11ee954c6a99c7a d002a4d00873b56ebe3fbd366d6efcafbe575e41 d42cd355a50c0ea981139e65c39e0b68ddef2a6b db39a349f5733ac933d9ed3a63d3b3801b3441aa e18603c2a46e8a43885ad93e84744a6bc18acab6 e251914cc2da54550d7f2254d4ba17bced1085ed e3f46355494fc335c8a060c650bba72ca2b7859c e463381287af46e07f75a8033a7ac57dfe50d55a e567f7d06d1a3ebffad641f0073e2274aa5b9daa f0e8851d5866328ead9b087b9c86ffb7a695eb3a f483dc19d8ed1ca84ed7f748975a1e56331b016a f655e5e6e17b678494a39375017007eae2744c33
 
