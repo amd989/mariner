@@ -18,11 +18,23 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: amd64
+          - codename: bookworm
+            arch: amd64
             docker_platform: linux/amd64
-          - arch: arm64
+          - codename: bookworm
+            arch: arm64
             docker_platform: linux/arm64
-          - arch: armhf
+          - codename: bookworm
+            arch: armhf
+            docker_platform: linux/arm/v7
+          - codename: trixie
+            arch: amd64
+            docker_platform: linux/amd64
+          - codename: trixie
+            arch: arm64
+            docker_platform: linux/arm64
+          - codename: trixie
+            arch: armhf
             docker_platform: linux/arm/v7
 
     steps:
@@ -42,7 +54,7 @@ jobs:
         run: |
           docker run --rm --platform ${{ matrix.docker_platform }} \
             -v "$PWD":/src -w /src \
-            debian:bookworm bash -c '
+            debian:${{ matrix.codename }} bash -c '
               set -e
               export DEBIAN_FRONTEND=noninteractive
 
@@ -92,7 +104,7 @@ jobs:
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v4
         with:
-          name: deb-${{ matrix.arch }}
+          name: deb-${{ matrix.codename }}-${{ matrix.arch }}
           path: output/*.deb
 
   build-rpm:
@@ -225,8 +237,29 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: "{deb-*,rpm-*}"
-          path: packages
-          merge-multiple: true
+          path: packages-raw
+          merge-multiple: false
+
+      - name: Flatten packages for release (unique .deb names per codename)
+        run: |
+          set -e
+          mkdir -p packages
+          shopt -s nullglob
+          rpms=(packages-raw/rpm-*/*.rpm)
+          debs=(packages-raw/deb-*/*.deb)
+          if [ "${#debs[@]}" -eq 0 ]; then
+            echo "ERROR: no .deb under packages-raw/deb-*" >&2
+            ls -laR packages-raw || true
+            exit 1
+          fi
+          for rpm in "${rpms[@]}"; do
+            [ -f "$rpm" ] && cp "$rpm" packages/
+          done
+          for deb in "${debs[@]}"; do
+            artifact_dir=$(basename "$(dirname "$deb")")
+            cp "$deb" "packages/${artifact_dir}_$(basename "$deb")"
+          done
+          ls -la packages
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -259,7 +292,7 @@ jobs:
         with:
           pattern: deb-*
           path: incoming-deb
-          merge-multiple: true
+          merge-multiple: false
 
       - name: Download rpm artifacts
         uses: actions/download-artifact@v4
@@ -300,18 +333,71 @@ jobs:
           cat > conf/distributions <<EOF
           Origin: mariner3d
           Label: mariner3d
+          Codename: bookworm
+          Architectures: amd64 arm64 armhf
+          Components: main
+          Description: Mariner 2 - MSLA 3D Printer Controller (Debian bookworm)
+          SignWith: ${{ env.GPG_KEY_ID }}
+
+          Origin: mariner3d
+          Label: mariner3d
+          Codename: trixie
+          Architectures: amd64 arm64 armhf
+          Components: main
+          Description: Mariner 2 - MSLA 3D Printer Controller (Debian trixie)
+          SignWith: ${{ env.GPG_KEY_ID }}
+
+          Origin: mariner3d
+          Label: mariner3d
           Codename: stable
           Architectures: amd64 arm64 armhf
           Components: main
-          Description: Mariner 2 - MSLA 3D Printer Controller
+          Description: Mariner 2 - legacy APT suite (same packages as bookworm; use bookworm or trixie for new installs)
           SignWith: ${{ env.GPG_KEY_ID }}
           EOF
 
       - name: Add deb packages to APT repo
         run: |
-          for deb in incoming-deb/*.deb; do
-            reprepro includedeb stable "$deb"
+          set -e
+          shopt -s nullglob
+          debdirs=(incoming-deb/deb-*)
+          if [ "${#debdirs[@]}" -eq 0 ]; then
+            echo "ERROR: no directories matching incoming-deb/deb-* (expected per-matrix deb artifacts)" >&2
+            ls -la incoming-deb || true
+            exit 1
+          fi
+          for debdir in "${debdirs[@]}"; do
+            [ -d "$debdir" ] || continue
+            base=$(basename "$debdir")
+            rest="${base#deb-}"
+            arch="${rest##*-}"
+            codename="${rest%-$arch}"
+            case "$codename" in bookworm|trixie) ;; *)
+              echo "ERROR: unexpected artifact directory name: $base (expected deb-<codename>-<arch>)" >&2
+              exit 1
+            ;; esac
+            for deb in "$debdir"/*.deb; do
+              [ -f "$deb" ] || continue
+              echo "Including $deb into suite $codename"
+              reprepro includedeb "$codename" "$deb"
+              if [ "$codename" = bookworm ]; then
+                echo "Including $deb into suite stable (bookworm-compatible legacy alias)"
+                reprepro includedeb stable "$deb"
+              fi
+            done
           done
+
+      - name: Verify APT repo layout
+        run: |
+          set -e
+          for codename in bookworm trixie stable; do
+            for arch in amd64 arm64 armhf; do
+              pkg="dists/${codename}/main/binary-${arch}/Packages"
+              test -f "$pkg" || { echo "ERROR: missing $pkg"; exit 1; }
+              grep -q '^Package: mariner3d$' "$pkg" || { echo "ERROR: mariner3d not listed in $pkg"; exit 1; }
+            done
+          done
+          echo "APT layout OK: bookworm, trixie, stable (bookworm alias), all architectures."
 
       - name: Create YUM/DNF repo
         run: |
@@ -340,9 +426,26 @@ jobs:
             esac
           done
 
-          echo "Adding Mariner 2 APT repository..."
+          if [ -r /etc/os-release ]; then
+            # shellcheck source=/dev/null
+            . /etc/os-release
+          fi
+          CODENAME="${VERSION_CODENAME:-}"
+          case "$CODENAME" in
+            bookworm|trixie) ;;
+            "")
+              echo "ERROR: VERSION_CODENAME is empty. Is this a Debian-based system with /etc/os-release?" >&2
+              exit 1
+              ;;
+            *)
+              echo "ERROR: Unsupported Debian suite '${CODENAME}'. Supported: bookworm, trixie." >&2
+              exit 1
+              ;;
+          esac
+
+          echo "Adding Mariner 2 APT repository (suite: ${CODENAME})..."
           curl -fsSL https://amd989.github.io/mariner/gpg.key | gpg --dearmor -o /usr/share/keyrings/mariner3d.gpg
-          echo "deb [signed-by=/usr/share/keyrings/mariner3d.gpg] https://amd989.github.io/mariner stable main" > /etc/apt/sources.list.d/mariner3d.list
+          echo "deb [signed-by=/usr/share/keyrings/mariner3d.gpg] https://amd989.github.io/mariner ${CODENAME} main" > /etc/apt/sources.list.d/mariner3d.list
 
           if [ -n "$PREFER_ARMHF" ]; then
             native_arch=$(dpkg --print-architecture)
@@ -368,6 +471,7 @@ jobs:
           echo "  or re-run this script with --prefer-armhf (writes /etc/apt/preferences.d/mariner3d-prefer-armhf)."
           EOF
           chmod +x setup-apt.sh
+          cp setup-apt.sh setup.sh
 
       - name: Create DNF setup script
         run: |

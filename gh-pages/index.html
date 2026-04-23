@@ -91,9 +91,10 @@
 
     <div class="card">
       <h2>apt</h2>
-      <div class="distros">Debian, Ubuntu, Raspberry Pi OS</div>
-      <pre><code><span class="prompt">$ </span><span class="cmd">curl -fsSL https://amd989.github.io/mariner/setup-apt.sh | sudo bash</span>
+      <div class="distros">Debian bookworm / trixie (and derivatives with the same codename, e.g. Raspberry Pi OS)</div>
+      <pre><code><span class="prompt">$ </span><span class="cmd">curl -fsSL https://amd989.github.io/mariner/setup.sh | sudo bash</span>
 <span class="prompt">$ </span><span class="cmd">sudo apt install mariner3d</span></code></pre>
+      <p style="margin-top: 0.75rem; color: var(--muted); font-size: 0.85rem;">The script picks the <code>bookworm</code> or <code>trixie</code> APT suite from your system codename. <code>setup-apt.sh</code> is the same script.</p>
     </div>
 
     <div class="card">

@@ -19,6 +19,18 @@ There are several ways to install Mariner 2 depending on your platform.
 Debian / Ubuntu / Raspberry Pi OS (apt)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Published ``.deb`` packages are built per Debian release codename (currently
+**bookworm** and **trixie**). The install script selects the matching suite from
+``/etc/os-release`` (``VERSION_CODENAME``). Pure **Ubuntu** releases use their
+own codenames (for example ``noble``); those are not published here unless they
+match a supported suite—use Docker, the RPM instructions below, or a
+Debian-bookworm/trixie-based image (many **Raspberry Pi OS** releases do).
+
+The APT repository also publishes a **stable** suite that carries the same
+packages as **bookworm**, so older ``sources.list`` lines that still use
+``stable`` keep working. **Trixie** machines should use the ``trixie`` suite (or
+re-run ``setup.sh``) so they install the build that matches their Python stack.
+
 First, enable the repository:
 
 .. code-block:: shell-session
@@ -31,12 +43,17 @@ Then install mariner:
 
    $ sudo apt install mariner3d
 
-Or set up the repository manually:
+On Debian-derived systems without a supported codename, the script exits with an
+error; use Docker or install from source until a build exists for your suite.
+
+Or set up the repository manually (replace ``CODENAME`` with ``bookworm`` or
+``trixie``, matching your distro):
 
 .. code-block:: shell-session
 
    $ curl -fsSL https://amd989.github.io/mariner/gpg.key | sudo gpg --dearmor -o /usr/share/keyrings/mariner3d.gpg
-   $ echo "deb [signed-by=/usr/share/keyrings/mariner3d.gpg] https://amd989.github.io/mariner stable main" | sudo tee /etc/apt/sources.list.d/mariner3d.list
+   $ CODENAME=$(. /etc/os-release && echo "$VERSION_CODENAME")
+   $ echo "deb [signed-by=/usr/share/keyrings/mariner3d.gpg] https://amd989.github.io/mariner ${CODENAME} main" | sudo tee /etc/apt/sources.list.d/mariner3d.list
    $ sudo apt update
    $ sudo apt install mariner3d
 
