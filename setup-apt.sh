@@ -8,9 +8,26 @@ for arg in "$@"; do
   esac
 done
 
-echo "Adding Mariner 2 APT repository..."
+if [ -r /etc/os-release ]; then
+  # shellcheck source=/dev/null
+  . /etc/os-release
+fi
+CODENAME="${VERSION_CODENAME:-}"
+case "$CODENAME" in
+  bookworm|trixie) ;;
+  "")
+    echo "ERROR: VERSION_CODENAME is empty. Is this a Debian-based system with /etc/os-release?" >&2
+    exit 1
+    ;;
+  *)
+    echo "ERROR: Unsupported Debian suite '${CODENAME}'. Supported: bookworm, trixie." >&2
+    exit 1
+    ;;
+esac
+
+echo "Adding Mariner 2 APT repository (suite: ${CODENAME})..."
 curl -fsSL https://amd989.github.io/mariner/gpg.key | gpg --dearmor -o /usr/share/keyrings/mariner3d.gpg
-echo "deb [signed-by=/usr/share/keyrings/mariner3d.gpg] https://amd989.github.io/mariner stable main" > /etc/apt/sources.list.d/mariner3d.list
+echo "deb [signed-by=/usr/share/keyrings/mariner3d.gpg] https://amd989.github.io/mariner ${CODENAME} main" > /etc/apt/sources.list.d/mariner3d.list
 
 if [ -n "$PREFER_ARMHF" ]; then
   native_arch=$(dpkg --print-architecture)

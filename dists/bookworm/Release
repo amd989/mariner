@@ -1,0 +1,37 @@
+Origin: mariner3d
+Label: mariner3d
+Codename: bookworm
+Date: Fri, 24 Apr 2026 01:55:49 UTC
+Architectures: amd64 arm64 armhf
+Components: main
+Description: Mariner 2 - MSLA 3D Printer Controller (Debian bookworm)
+MD5Sum:
+ 05c2b336831f9037949454c183c21d4c 837 main/binary-amd64/Packages
+ 072ee9483f51cf84b66c36011f06ffd4 563 main/binary-amd64/Packages.gz
+ 54ae7da92484b37aa6e044a85fac0a96 141 main/binary-amd64/Release
+ a698b79bac89318dcc8edcae3d24d951 837 main/binary-arm64/Packages
+ 294e525a4925eed341310c715c68f534 563 main/binary-arm64/Packages.gz
+ f6d6989f23349c8eac2710015cca1e23 141 main/binary-arm64/Release
+ e66f61c7c561dcc6726d4bef818e4543 837 main/binary-armhf/Packages
+ d94038af5d3581632f866438a6a95fa1 562 main/binary-armhf/Packages.gz
+ cef7b9b3ffb76fd783c813f6a5a42c1c 141 main/binary-armhf/Release
+SHA1:
+ cc3906efd8093b4ac3f357ce0d5224f2ea32a2cc 837 main/binary-amd64/Packages
+ 3789e40a57784dfa799337dd079ad7151f385f21 563 main/binary-amd64/Packages.gz
+ db16efb1158ca0348de26cf294d4ccdba6cb144d 141 main/binary-amd64/Release
+ a2b37f0dbc2ea275117921a80f654fefe63cce55 837 main/binary-arm64/Packages
+ 3b1215922947d58085cac63f28c5168f68c4d23f 563 main/binary-arm64/Packages.gz
+ 31524b1f7264c231da1d61a4b5060c9dd81c75fc 141 main/binary-arm64/Release
+ cd317ee6f71901862c8fae3efdccbfd8592cdfc6 837 main/binary-armhf/Packages
+ 3068bc3e8f9f8e4c69ee21b732260e8fc3fab719 562 main/binary-armhf/Packages.gz
+ 0f7aa3e4a7e411f41f5423055ed16711a24ad981 141 main/binary-armhf/Release
+SHA256:
+ 60d6a45c3aeedd93bf383195acd17b2e80b8677acf82dfa95be9c38e18cc8bb9 837 main/binary-amd64/Packages
+ f6951a1e19c313bd16b1d6d9d764e5d316bb5a136470f7ff2ed6f33c942eb6d0 563 main/binary-amd64/Packages.gz
+ e5a59e1f9832ba3f5f84f46c5755060e8f5c46ad05a6a36893f87c7d2cc0c1cd 141 main/binary-amd64/Release
+ c9da1185ce8e31c1362c276e41cf4bd19c040d9a2351bf6145216e62c9586cad 837 main/binary-arm64/Packages
+ bf5158a8663e4821962b253aba6e507c1d4f1a8c3ace5f2ef279c6d51c66cebd 563 main/binary-arm64/Packages.gz
+ 5800de4bcf2c2c35211540c76fdd4e2c17f95dc8dba3c6bec0295245cdaa106a 141 main/binary-arm64/Release
+ 817d59d4aeb9c6eee0c940655328d916a6618893e310c4782d2171e21bbddf23 837 main/binary-armhf/Packages
+ 082bfef4c2564de22963d43f07704cda32797ad728d72ae2248a20ac4653908b 562 main/binary-armhf/Packages.gz
+ cebfbf9e2eb3f92cf117161e71327cb0a23a78b0b52a027547bf4a487ea638cf 141 main/binary-armhf/Release

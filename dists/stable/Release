@@ -1,37 +1,37 @@
 Origin: mariner3d
 Label: mariner3d
 Codename: stable
-Date: Tue, 21 Apr 2026 12:27:32 UTC
+Date: Fri, 24 Apr 2026 01:55:49 UTC
 Architectures: amd64 arm64 armhf
 Components: main
-Description: Mariner 2 - MSLA 3D Printer Controller
+Description: Mariner 2 - legacy APT suite (same packages as bookworm; use bookworm or trixie for new installs)
 MD5Sum:
- 9e7a7f325819c8710b0a6632ce19b2fc 3164 main/binary-amd64/Packages
- 5887fbb8091d9f333544df796ec0b9d1 1836 main/binary-amd64/Packages.gz
+ 36c8a2fd88b27fc3a2d628e51017f300 3182 main/binary-amd64/Packages
+ 53e324849a2c5a9b7bdf8e2fa3f083c5 1855 main/binary-amd64/Packages.gz
  3408ea0e52f1c91f66e95b404ec9706f 123 main/binary-amd64/Release
- 84be15d8252199883239a7e2cfa000f0 3082 main/binary-arm64/Packages
- 6be494fae9d8d5c0f5af675463599985 1790 main/binary-arm64/Packages.gz
+ ea517e99679b70e0529330e1ee11f2de 3100 main/binary-arm64/Packages
+ f758580462281741258309a9f768e8a2 1808 main/binary-arm64/Packages.gz
  5fa20d76c6f842c5af612a4c8681dd39 123 main/binary-arm64/Release
- ecb2f65f13bb298a976a8455f91fd8a5 3041 main/binary-armhf/Packages
- 9a2e937083b246f1b02ef5990f9eba20 1765 main/binary-armhf/Packages.gz
+ a71223d6a7b269b5351bd9906cfbdf0e 3059 main/binary-armhf/Packages
+ 801df7661c2034629162f8b5d15a85b1 1781 main/binary-armhf/Packages.gz
  024c5a1cef1bcbdb92d5214326b5d7b4 123 main/binary-armhf/Release
 SHA1:
- 64fadc45178690629b7ec2c1335ba87885a1b36c 3164 main/binary-amd64/Packages
- a05fd7bd12e66ed761f9a2adbf5510d9dc3731d5 1836 main/binary-amd64/Packages.gz
+ d860a347aed4e2c0199d244d46619035c7b9c11d 3182 main/binary-amd64/Packages
+ 75cec7ddb450359778d42db14b2b8df9f820bdba 1855 main/binary-amd64/Packages.gz
  289a29401ada48e99d8d3437a12e41b8cea0450c 123 main/binary-amd64/Release
- 1e93abfe210a967f280a69ba27d038ef1d98bf48 3082 main/binary-arm64/Packages
- ce1360b3e2ff1cb686afae7d682aed993dd7f96e 1790 main/binary-arm64/Packages.gz
+ 6a54c2af57f334f60df73b26199b57e8ccd46ec3 3100 main/binary-arm64/Packages
+ e1d4970c0e61daa8dde479030a9cd9330441c3f1 1808 main/binary-arm64/Packages.gz
  ee0433418fb552fb9f01c98d057561608c761ea1 123 main/binary-arm64/Release
- e61ca56ae3028e0311a9af01b684d1893fddf0f8 3041 main/binary-armhf/Packages
- 63e43ddfccab14846b5c440ac1bc21c21ae94d00 1765 main/binary-armhf/Packages.gz
+ f0e09d5d4f397717b79531276f3951ce268d8419 3059 main/binary-armhf/Packages
+ bd622c1fa655689e4188e707ac9cc3176f1ba510 1781 main/binary-armhf/Packages.gz
  7f07ca7a0ce3c4bde5e97dd0d3feabcad14ae30e 123 main/binary-armhf/Release
 SHA256:
- cd491d5703c480e955c7c3aaef0a0494b79e48b17a9c6de3e2fcc652254900e8 3164 main/binary-amd64/Packages
- 60a0e611222b47a15726b606ebcd4a3cadf855a5a5cc10efa9382899b3300d83 1836 main/binary-amd64/Packages.gz
+ 35733b59be439bb8f01de43adeb4871dad493f942eab010f905df1e68051d56f 3182 main/binary-amd64/Packages
+ 1d986ed5c1b3cadd76cdf75e74f2b10c135ef53c31653550860d627af5404dd0 1855 main/binary-amd64/Packages.gz
  778ec13961b21a748080b852506571377452606a97a0e582527e1b4b21ee5e6d 123 main/binary-amd64/Release
- 133169f5b6b37b98e5d5ba1f4cc0f327c35c1dca46f8b19f4d9d48c1d3c23932 3082 main/binary-arm64/Packages
- 8d2cc182def88d6abeebd84be8cdaa469c59b7d4185d59be562879ab67754e34 1790 main/binary-arm64/Packages.gz
+ 3eedf3eb0522aad02ac787d9c3a1b00daa460848c69e42d5796d6b7e7c169b05 3100 main/binary-arm64/Packages
+ 728216dfae67df32d44220811b6c3cc133cea703cf62593adc326fc56937afea 1808 main/binary-arm64/Packages.gz
  38b9ff9b9914eb9a5d160fabb5347343b2dd864c8f006c88fdd6bba0aa1ad97c 123 main/binary-arm64/Release
- dbba2a2bb020015aaea4fc3db5f0af6436a62430f98682939c60ba0a804351e5 3041 main/binary-armhf/Packages
- df4e754bffc20d6dd4fa8b4ba898bf6c12d1e67c4bfd5b937a0548160fea15b9 1765 main/binary-armhf/Packages.gz
+ 3c9eb39fe2fa8a4d0c8dd3dce75b6af1c5fe2db8afd9b149a3b123fc9d016029 3059 main/binary-armhf/Packages
+ 03604cf93b4e78082ad8af5d346a991e4ccdd49a306a30cd3bec7b96a0b047d4 1781 main/binary-armhf/Packages.gz
  2ddb82a5c3a69a4811461cbd7083e939daba4020e8c78d9f36252f86ae760ca6 123 main/binary-armhf/Release
