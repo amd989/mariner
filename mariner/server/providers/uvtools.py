@@ -43,7 +43,7 @@ from mariner.server.utils import read_cached_sliced_model_file, retry
 
 from werkzeug.utils import secure_filename
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class UVToolsProvider(NetworkPrintProvider):
@@ -51,74 +51,74 @@ class UVToolsProvider(NetworkPrintProvider):
     def name(self) -> str:
         return "uvtools"
 
-    def register_routes(self, bp: Blueprint) -> None:
-        bp.add_url_rule(
+    def register_routes(self, blueprint: Blueprint) -> None:
+        blueprint.add_url_rule(
             "/upload/<filename>",
             endpoint="upload_file",
             view_func=self._upload_file,
             methods=["POST", "PUT"],
         )
-        bp.add_url_rule(
+        blueprint.add_url_rule(
             "/print/<filename>",
             endpoint="print_file",
             view_func=self._print_file,
             methods=["GET", "POST"],
         )
-        bp.add_url_rule(
+        blueprint.add_url_rule(
             "/delete/<filename>",
             endpoint="delete_file",
             view_func=self._delete_file,
             methods=["GET", "POST"],
         )
-        bp.add_url_rule(
+        blueprint.add_url_rule(
             "/pause",
             endpoint="pause_print",
             view_func=self._pause_print,
             methods=["GET", "POST"],
         )
-        bp.add_url_rule(
+        blueprint.add_url_rule(
             "/pause/<filename>",
             endpoint="pause_print_with_file",
             view_func=self._pause_print,
             methods=["GET", "POST"],
         )
-        bp.add_url_rule(
+        blueprint.add_url_rule(
             "/resume",
             endpoint="resume_print",
             view_func=self._resume_print,
             methods=["GET", "POST"],
         )
-        bp.add_url_rule(
+        blueprint.add_url_rule(
             "/resume/<filename>",
             endpoint="resume_print_with_file",
             view_func=self._resume_print,
             methods=["GET", "POST"],
         )
-        bp.add_url_rule(
+        blueprint.add_url_rule(
             "/stop",
             endpoint="stop_print",
             view_func=self._stop_print,
             methods=["GET", "POST"],
         )
-        bp.add_url_rule(
+        blueprint.add_url_rule(
             "/stop/<filename>",
             endpoint="stop_print_with_file",
             view_func=self._stop_print,
             methods=["GET", "POST"],
         )
-        bp.add_url_rule(
+        blueprint.add_url_rule(
             "/files",
             endpoint="get_files",
             view_func=self._get_files,
             methods=["GET"],
         )
-        bp.add_url_rule(
+        blueprint.add_url_rule(
             "/status",
             endpoint="print_status",
             view_func=self._print_status,
             methods=["GET"],
         )
-        bp.add_url_rule(
+        blueprint.add_url_rule(
             "/info",
             endpoint="printer_info",
             view_func=self._printer_info,

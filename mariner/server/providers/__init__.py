@@ -7,7 +7,7 @@ from flask_wtf.csrf import CSRFProtect
 from mariner.server.providers.base import NetworkPrintProvider
 from mariner.server.providers.uvtools import UVToolsProvider
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 _providers: List[NetworkPrintProvider] = [
     UVToolsProvider(),
