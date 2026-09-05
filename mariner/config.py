@@ -1,6 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
-from typing import MutableMapping, Optional, Sequence
+from typing import Any, Dict, MutableMapping, Optional, Sequence
 
 import toml
 
@@ -95,7 +95,9 @@ def get_cache_directory() -> str:
     return str(cache_config.get("directory", default_directory))
 
 
-def _sdcp_config() -> MutableMapping[str, object]:
+def _sdcp_config() -> Dict[str, Any]:
+    # Values come back as Any (rather than object) so callers can coerce them
+    # with int()/float(), matching how the other config sections narrow.
     sdcp_config = _get_config().get("sdcp")
     if not isinstance(sdcp_config, dict):
         return {}

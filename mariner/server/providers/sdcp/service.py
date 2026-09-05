@@ -39,12 +39,15 @@ class _DiscoveryProtocol(asyncio.DatagramProtocol):
     def datagram_received(self, data: bytes, addr: Any) -> None:
         if data.strip() != constants.DISCOVERY_MAGIC:
             return
-        if self._transport is None:
+        # Bound to a local because building the reply calls out, which would
+        # otherwise invalidate the None check on the attribute.
+        transport = self._transport
+        if transport is None:
             return
         peer = addr[0] if addr else None
         payload = self._service.build_discovery_response(peer)
         logger.info("SDCP: discovery request from %s", peer)
-        self._transport.sendto(json.dumps(payload).encode("utf-8"), addr)
+        transport.sendto(json.dumps(payload).encode("utf-8"), addr)
 
 
 class SDCPService:
@@ -390,6 +393,7 @@ class SDCPService:
     # -- file upload ----------------------------------------------------
 
     async def _handle_upload(self, request: web.Request) -> web.Response:
+        form: Any
         try:
             form = await request.post()
         except Exception as exc:
@@ -420,20 +424,22 @@ class SDCPService:
                 )
             )
 
+        offset: int
         try:
             offset = int(field("Offset", "0") or 0)
         except ValueError:
             return web.json_response(
                 messages.upload_failure(constants.UploadError.OFFSET_ERROR)
             )
+        total_size: int
         try:
             total_size = int(field("TotalSize", "0") or 0)
         except ValueError:
             total_size = 0
 
-        upload_uuid = field("Uuid") or "default"
-        expected_md5 = field("S-File-MD5")
-        verify = field("Check", "0") == "1"
+        upload_uuid: str = field("Uuid") or "default"
+        expected_md5: str = field("S-File-MD5")
+        verify: bool = field("Check", "0") == "1"
 
         def read_and_store() -> Any:
             data = file_handle.read()
