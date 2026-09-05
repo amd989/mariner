@@ -18,6 +18,7 @@ Features
 - Browse files available for printing.
 - Inspect ``.ctb`` files: image preview, print time and slicing settings.
 - *NEW* Inspect encrypted ``.ctb`` files.
+- *NEW* UVTools network transfers
 
 For more details on the feature set, refer to our `Documentation
 <https://mariner2.readthedocs.io/en/latest/>`_.
