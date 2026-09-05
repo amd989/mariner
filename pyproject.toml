@@ -14,6 +14,7 @@ authors = [
 mariner = 'mariner.server:main'
 
 [tool.poetry.dependencies]
+aiohttp = "^3.9"
 flask = "^3.0"
 flask-caching = "^2.1"
 Flask-WTF = "^1.2"

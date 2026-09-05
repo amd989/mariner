@@ -10,7 +10,7 @@ from mariner import config
 from mariner.file_formats.utils import get_supported_extensions
 from mariner.server.api import api as api_blueprint
 from mariner.server.app import app as flask_app, csrf
-from mariner.server.providers import register_providers
+from mariner.server.providers import register_providers, start_providers
 from mariner.server.utils import (
     read_cached_preview,
     read_cached_sliced_model_file,
@@ -74,5 +74,7 @@ def main() -> None:
         logging.getLogger().setLevel(log_level)
     logging.getLogger("mariner").setLevel(log_level)
     logging.getLogger("waitress").setLevel(log_level)
+
+    start_providers()
 
     serve(flask_app, host=config.get_http_host(), port=config.get_http_port())

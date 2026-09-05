@@ -4,6 +4,7 @@
   ],
   "search_path": [
     "stubs/",
+    {"site-package": "aiohttp"},
     {"site-package": "flask"},
     {"site-package": "flask_caching"},
     {"site-package": "flask_wtf"},
