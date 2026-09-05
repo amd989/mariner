@@ -9,7 +9,8 @@ from waitress import serve
 from mariner import config
 from mariner.file_formats.utils import get_supported_extensions
 from mariner.server.api import api as api_blueprint
-from mariner.server.app import app as flask_app
+from mariner.server.app import app as flask_app, csrf
+from mariner.server.providers import register_providers
 from mariner.server.utils import (
     read_cached_preview,
     read_cached_sliced_model_file,
@@ -19,6 +20,7 @@ from itertools import chain
 
 
 flask_app.register_blueprint(api_blueprint)
+register_providers(flask_app, csrf)
 
 
 def render_index() -> str:
@@ -38,9 +40,14 @@ def index() -> str:
 
 @flask_app.get("/<path:spa_path>")
 def spa_fallback(spa_path: str) -> str:
-    # Let /api/* hit the API blueprint; everything else is a client-side route.
+    # Let /api/* and provider routes pass through to their blueprints.
     if spa_path == "api" or spa_path.startswith("api/"):
         abort(404)
+    from mariner.server.providers import get_provider_prefixes
+
+    for prefix in get_provider_prefixes():
+        if spa_path == prefix or spa_path.startswith(prefix + "/"):
+            abort(404)
     return render_index()
 
 

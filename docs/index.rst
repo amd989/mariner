@@ -17,6 +17,8 @@ Mariner 2 provides the following features:
 - Wide range of :ref:`supported MSLA 3D printers <Supported Printers>`.
 - Web interface with support for both desktop and mobile.
 - Upload files to be printed through the web UI over WiFi!
+- :ref:`Network printing <Network Printing>`: send files directly from
+  UVTools and other slicer tools to Mariner over the network.
 - Remotely check print status: progress, current layer, time left.
 - Remotely control the printer: start prints, pause/resume and stop.
 - Browse files available for printing.
@@ -28,6 +30,7 @@ Mariner 2 provides the following features:
 
    supported-printers
    install
+   network-printing
    troubleshooting
    contributing
 
