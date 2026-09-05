@@ -19,6 +19,7 @@ Features
 - Inspect ``.ctb`` files: image preview, print time and slicing settings.
 - *NEW* Inspect encrypted ``.ctb`` files.
 - *NEW* UVTools network transfers
+- *NEW* ChiTuBox / SDCP 3.0.0 support
 
 For more details on the feature set, refer to our `Documentation
 <https://mariner2.readthedocs.io/en/latest/>`_.
