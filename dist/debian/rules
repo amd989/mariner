@@ -24,6 +24,13 @@ override_dh_gencontrol:
 
 override_dh_virtualenv:
 	tar xvzf "mariner-$(DEB_UPSTREAM_VERSION).tar.gz"
+	# dh_virtualenv resolves dependencies with pip and never reads
+	# poetry.lock, so without this the shipped venv can differ from what CI
+	# tested. requirements.txt is exported from the lock during the build;
+	# when it is absent (local builds) pip falls back to the sdist metadata.
+	if [ -f requirements.txt ]; then \
+		cp requirements.txt "mariner-$(DEB_UPSTREAM_VERSION)/requirements.txt"; \
+	fi
 	dh_virtualenv \
 		--python python3 \
 		--sourcedirectory="mariner-$(DEB_UPSTREAM_VERSION)"

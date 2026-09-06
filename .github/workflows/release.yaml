@@ -83,6 +83,13 @@ jobs:
               # Build Python sdist (used by dh-virtualenv)
               poetry build
 
+              # Pin runtime dependencies to poetry.lock. dh-virtualenv resolves
+              # with pip and ignores the lock, so without this the packaged venv
+              # drifts from the tested set on any new upstream release.
+              poetry self add poetry-plugin-export
+              poetry export --only main --without-hashes \
+                --format requirements.txt --output dist/requirements.txt
+
               # Build .deb (dpkg-buildpackage runs from dist/ where debian/ lives,
               # and produces .deb files one directory up in /src)
               export DEB_BUILD_OPTIONS=noautodbgsym
@@ -154,6 +161,11 @@ jobs:
               # Update version and build sdist
               poetry version "$VERSION"
               poetry build
+
+              # Pin runtime dependencies to poetry.lock (see the .deb job).
+              poetry self add poetry-plugin-export
+              poetry export --only main --without-hashes \
+                --format requirements.txt --output dist/requirements.txt
 
               # Build frontend
               cd frontend && npm install && npm run build && cd ..

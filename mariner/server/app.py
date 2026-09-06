@@ -37,7 +37,10 @@ app.wsgi_app.add_files(frontend_dist_directory)
 app.config.from_mapping(
     {
         "DEBUG": True,
-        "CACHE_TYPE": "filesystem",
+        # Backend class name, not the legacy "filesystem" factory alias. The
+        # lowercase aliases are deprecated in flask-caching 2.x and gone in
+        # 3.x, where they fail at import with ImportStringError.
+        "CACHE_TYPE": "FileSystemCache",
         "CACHE_DIR": config.get_cache_directory(),
         "CACHE_DEFAULT_TIMEOUT": 300,
         "SECRET_KEY": os.urandom(16),

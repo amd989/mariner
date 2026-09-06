@@ -37,6 +37,13 @@ CTB, CBDDLP, FDG, and Photon files, with encrypted CTB support.
 %install
 # Create virtualenv and install the package from sdist
 python3 -m venv %{buildroot}/opt/venvs/mariner3d
+# Pin dependencies to the versions in poetry.lock first, so the shipped venv
+# matches what CI tested. pip would otherwise resolve them fresh from the
+# sdist metadata and pick up newer releases.
+if [ -f /build/dist/requirements.txt ]; then
+    %{buildroot}/opt/venvs/mariner3d/bin/pip install --no-cache-dir \
+        -r /build/dist/requirements.txt
+fi
 %{buildroot}/opt/venvs/mariner3d/bin/pip install --no-cache-dir \
     /root/rpmbuild/SOURCES/mariner-%{version}.tar.gz
 
