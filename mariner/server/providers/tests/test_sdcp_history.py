@@ -4,6 +4,7 @@ import tempfile
 
 from pyexpect import expect
 from pyfakefs.fake_filesystem_unittest import TestCase
+from pyre_extensions import none_throws
 
 from mariner.server.providers.sdcp.history import HistoryStore, TaskStatus
 
@@ -17,6 +18,10 @@ class HistoryStoreTest(TestCase):
         self.setUpPyfakefs(additional_skip_names=["importlib.metadata"])
         self.path = pathlib.Path(tempfile.gettempdir()) / "sdcp_history.json"
         self.store = HistoryStore(self.path)
+
+    def _start(self, filename: str, total_layer: int = 0) -> str:
+        """start_task is Optional[str]; these tests always expect an id."""
+        return none_throws(self.store.start_task(filename, total_layer))
 
     # -- lifecycle ------------------------------------------------------
 
@@ -92,7 +97,7 @@ class HistoryStoreTest(TestCase):
     # -- detail rendering -----------------------------------------------
 
     def test_details_match_the_spec_shape(self) -> None:
-        task_id = self.store.start_task("model.ctb", 400)
+        task_id = self._start("model.ctb", 400)
         entry = self.store.details([task_id], _url)[0]
         expect(sorted(entry.keys())).to_equal(
             sorted(
@@ -128,7 +133,7 @@ class HistoryStoreTest(TestCase):
         expect(self.store.details(["does-not-exist"], _url)).to_equal([])
 
     def test_thumbnail_can_be_empty(self) -> None:
-        task_id = self.store.start_task("gone.ctb")
+        task_id = self._start("gone.ctb")
         entry = self.store.details([task_id], lambda _t, _f: "")[0]
         expect(entry["Thumbnail"]).to_equal("")
 
@@ -142,7 +147,7 @@ class HistoryStoreTest(TestCase):
         # The real callback checks the file on disk and previously called
         # back into the store, which self-deadlocked on the non-reentrant
         # lock. details() must not hold the lock while calling out.
-        task_id = self.store.start_task("model.ctb")
+        task_id = self._start("model.ctb")
 
         def reentrant(inner_id: str, filename: str) -> str:
             return str(self.store.filename_for(inner_id))
@@ -151,14 +156,14 @@ class HistoryStoreTest(TestCase):
         expect(entry["Thumbnail"]).to_equal("model.ctb")
 
     def test_filename_lookup(self) -> None:
-        task_id = self.store.start_task("model.ctb")
+        task_id = self._start("model.ctb")
         expect(self.store.filename_for(task_id)).to_equal("model.ctb")
         expect(self.store.filename_for("nope")).to_equal(None)
 
     # -- persistence ----------------------------------------------------
 
     def test_history_survives_a_reload(self) -> None:
-        task_id = self.store.start_task("model.ctb", 400)
+        task_id = self._start("model.ctb", 400)
         self.store.update_progress("model.ctb", 42, 400)
         self.store.finish_task(TaskStatus.STOPPED)
 

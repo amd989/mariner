@@ -53,13 +53,23 @@ class TaskRecord:
 class HistoryStore:
     """Thread-safe, bounded, JSON-persisted task history."""
 
+    _path: Path
+    _limit: int
+    _lock: threading.Lock
+    # Newest first, matching the ordered list command 320 expects.
+    _tasks: List[TaskRecord]
+
     def __init__(self, path: Path, limit: int = 50) -> None:
         self._path = path
         self._limit = max(1, limit)
         self._lock = threading.Lock()
-        # Newest first, matching the ordered list command 320 expects.
-        self._tasks: List[TaskRecord] = []
+        self._tasks = []
         self._load()
+
+    def _trim(self) -> None:
+        """Drop the oldest tasks beyond the configured limit."""
+        while len(self._tasks) > self._limit:
+            self._tasks.pop()
 
     # -- persistence ----------------------------------------------------
 
@@ -85,7 +95,8 @@ class HistoryStore:
                 # A record written by a different version; skip rather than
                 # throw the whole history away.
                 continue
-        self._tasks = loaded[: self._limit]
+        self._tasks = loaded
+        self._trim()
 
     def _save_locked(self) -> None:
         try:
@@ -123,8 +134,7 @@ class HistoryStore:
                 total_layer=total_layer,
             )
             self._tasks.insert(0, record)
-            if len(self._tasks) > self._limit:
-                self._tasks = self._tasks[: self._limit]
+            self._trim()
             self._save_locked()
             logger.info("SDCP: opened history task for %s", filename)
             return record.task_id

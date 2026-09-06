@@ -315,11 +315,12 @@ class SDCPService:
 
         if cmd == constants.Cmd.TASK_DETAILS:
             details: List[Dict[str, Any]] = []
-            if self._history is not None:
+            history = self._history
+            if history is not None:
                 requested = data.get("Id") or []
                 if not isinstance(requested, list):
                     requested = [requested]
-                details = self._history.details(
+                details = history.details(
                     [str(t) for t in requested], self._thumbnail_url
                 )
             await self._reply(
@@ -391,7 +392,8 @@ class SDCPService:
         cadence as status polling, so prints started while no client is
         connected are not recorded.
         """
-        if self._history is None:
+        history = self._history
+        if history is None:
             return
         info = payload.get("PrintInfo") or {}
         filename = str(info.get("Filename") or "")
@@ -402,10 +404,8 @@ class SDCPService:
         if printing and filename:
             self._idle_observations = 0
             total = int(info.get("TotalLayer") or 0)
-            self._history.start_task(filename, total)
-            self._history.update_progress(
-                filename, int(info.get("CurrentLayer") or 0), total
-            )
+            history.start_task(filename, total)
+            history.update_progress(filename, int(info.get("CurrentLayer") or 0), total)
             return
 
         # A serial read that fails is reported as idle, so closing on the
@@ -415,7 +415,7 @@ class SDCPService:
         if self._idle_observations >= IDLE_SAMPLES_BEFORE_CLOSE:
             # Mariner cannot see the difference between a finished print and
             # a cancelled one, so the store infers it from layers reached.
-            self._history.finish_task(TaskStatus.STOPPED)
+            history.finish_task(TaskStatus.STOPPED)
 
     async def _attributes_payload(self) -> Dict[str, Any]:
         payload = await self._in_executor(self._bridge.snapshot_attributes)
