@@ -3,109 +3,464 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>mariner3d - Package Repository</title>
+  <title>Mariner 2 - Deep Space Printer Control</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
+    /* ── Reset & Variables ── */
     :root {
-      --bg: #0f1419;
-      --surface: #1a2029;
-      --border: #2d3640;
-      --text: #e6edf3;
-      --muted: #8b949e;
-      --accent: #58a6ff;
-      --accent-hover: #79b8ff;
-      --code-bg: #161b22;
-      --green: #3fb950;
+      --void: #050a12;
+      --deep: #0a1023;
+      --panel: #0d1527;
+      --panel-edge: #1a2844;
+      --panel-glow: #1e3260;
+      --text: #c8d6e5;
+      --text-bright: #e8f0fa;
+      --muted: #5a7090;
+      --readout: #40e8d0;
+      --readout-dim: #2a9a8a;
+      --readout-glow: rgba(64, 232, 208, 0.15);
+      --signal: #f0c040;
+      --signal-glow: rgba(240, 192, 64, 0.2);
+      --thrust: #e85040;
+      --code-bg: #080e1a;
+      --cmd: #40e8d0;
+      --prompt-c: #5a7090;
+      --font-display: 'Orbitron', sans-serif;
+      --font-body: 'Exo 2', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    /* ── Starfield Background ── */
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-      background: var(--bg);
+      font-family: var(--font-body);
+      background: var(--void);
       color: var(--text);
-      line-height: 1.6;
-      padding: 2rem 1rem;
-    }
-    .container { max-width: 800px; margin: 0 auto; }
-    header { text-align: center; margin-bottom: 3rem; }
-    header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-    header p { color: var(--muted); font-size: 1.1rem; }
-    header .links { margin-top: 1rem; }
-    header .links a {
-      color: var(--accent);
-      text-decoration: none;
-      margin: 0 0.75rem;
-    }
-    header .links a:hover { color: var(--accent-hover); text-decoration: underline; }
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-    .card h2 {
-      font-size: 1.15rem;
-      margin-bottom: 0.25rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .card .distros {
-      color: var(--muted);
-      font-size: 0.85rem;
-      margin-bottom: 1rem;
-    }
-    pre {
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 1rem;
-      overflow-x: auto;
-      font-size: 0.9rem;
       line-height: 1.7;
+      min-height: 100vh;
+      overflow-x: hidden;
       position: relative;
     }
-    code { font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
-    .prompt { color: var(--muted); user-select: none; }
-    .cmd { color: var(--green); }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(1.5px 1.5px at 10% 15%, rgba(255,255,255,0.9) 50%, transparent 50%),
+        radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.7) 50%, transparent 50%),
+        radial-gradient(1.2px 1.2px at 45% 8%, rgba(255,255,255,0.8) 50%, transparent 50%),
+        radial-gradient(1px 1px at 60% 60%, rgba(255,255,255,0.5) 50%, transparent 50%),
+        radial-gradient(1.5px 1.5px at 78% 22%, rgba(255,255,255,0.9) 50%, transparent 50%),
+        radial-gradient(0.8px 0.8px at 88% 75%, rgba(255,255,255,0.6) 50%, transparent 50%),
+        radial-gradient(1.2px 1.2px at 15% 80%, rgba(255,255,255,0.7) 50%, transparent 50%),
+        radial-gradient(1px 1px at 35% 55%, rgba(255,255,255,0.5) 50%, transparent 50%),
+        radial-gradient(1.3px 1.3px at 55% 90%, rgba(255,255,255,0.8) 50%, transparent 50%),
+        radial-gradient(0.8px 0.8px at 70% 42%, rgba(255,255,255,0.4) 50%, transparent 50%),
+        radial-gradient(1px 1px at 92% 10%, rgba(255,255,255,0.6) 50%, transparent 50%),
+        radial-gradient(1.5px 1.5px at 5% 50%, rgba(255,255,255,0.7) 50%, transparent 50%),
+        radial-gradient(0.7px 0.7px at 40% 28%, rgba(255,255,255,0.5) 50%, transparent 50%),
+        radial-gradient(1.1px 1.1px at 82% 88%, rgba(255,255,255,0.65) 50%, transparent 50%),
+        radial-gradient(1px 1px at 50% 45%, rgba(255,255,255,0.55) 50%, transparent 50%),
+        radial-gradient(0.9px 0.9px at 18% 68%, rgba(255,255,255,0.5) 50%, transparent 50%),
+        radial-gradient(1.4px 1.4px at 65% 12%, rgba(64,232,208,0.6) 50%, transparent 50%),
+        radial-gradient(1.2px 1.2px at 30% 92%, rgba(240,192,64,0.5) 50%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+      animation: starTwinkle 8s ease-in-out infinite alternate;
+    }
+    @keyframes starTwinkle {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.8; }
+    }
+
+    /* Second star layer for parallax depth */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(0.6px 0.6px at 12% 25%, rgba(255,255,255,0.3) 50%, transparent 50%),
+        radial-gradient(0.5px 0.5px at 28% 72%, rgba(255,255,255,0.25) 50%, transparent 50%),
+        radial-gradient(0.7px 0.7px at 42% 18%, rgba(255,255,255,0.35) 50%, transparent 50%),
+        radial-gradient(0.4px 0.4px at 58% 82%, rgba(255,255,255,0.2) 50%, transparent 50%),
+        radial-gradient(0.6px 0.6px at 72% 38%, rgba(255,255,255,0.3) 50%, transparent 50%),
+        radial-gradient(0.5px 0.5px at 85% 55%, rgba(255,255,255,0.25) 50%, transparent 50%),
+        radial-gradient(0.7px 0.7px at 95% 92%, rgba(255,255,255,0.35) 50%, transparent 50%),
+        radial-gradient(0.4px 0.4px at 8% 95%, rgba(255,255,255,0.2) 50%, transparent 50%),
+        radial-gradient(0.6px 0.6px at 38% 42%, rgba(255,255,255,0.28) 50%, transparent 50%),
+        radial-gradient(0.5px 0.5px at 52% 65%, rgba(255,255,255,0.22) 50%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+      animation: starTwinkle2 12s ease-in-out infinite alternate;
+    }
+    @keyframes starTwinkle2 {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 0.9; }
+    }
+
+    /* ── Grid Overlay ── */
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(64,232,208,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(64,232,208,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ── Container ── */
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* ── Header / Hero ── */
+    header {
+      text-align: center;
+      padding: 4rem 0 3rem;
+      position: relative;
+    }
+
+    .probe-icon {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 2rem;
+      animation: probeFloat 6s ease-in-out infinite;
+      filter: drop-shadow(0 0 20px rgba(64,232,208,0.3)) drop-shadow(0 0 60px rgba(64,232,208,0.1));
+    }
+    @keyframes probeFloat {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-8px) rotate(0.5deg); }
+      75% { transform: translateY(4px) rotate(-0.3deg); }
+    }
+
+    .mission-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--readout-dim);
+      margin-bottom: 0.75rem;
+      opacity: 0;
+      animation: fadeSlideUp 0.8s ease forwards 0.2s;
+    }
+
+    header h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--text-bright);
+      text-shadow: 0 0 40px rgba(64,232,208,0.2);
+      margin-bottom: 0.5rem;
+      opacity: 0;
+      animation: fadeSlideUp 0.8s ease forwards 0.35s;
+    }
+    header h1 span {
+      color: var(--readout);
+    }
+
+    header .tagline {
+      font-family: var(--font-body);
+      font-size: 1.05rem;
+      color: var(--muted);
+      font-weight: 300;
+      letter-spacing: 0.02em;
+      margin-bottom: 1.25rem;
+      opacity: 0;
+      animation: fadeSlideUp 0.8s ease forwards 0.5s;
+    }
+
+    .version-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--readout);
+      background: var(--readout-glow);
+      border: 1px solid rgba(64,232,208,0.25);
+      border-radius: 4px;
+      padding: 0.3rem 1rem;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeSlideUp 0.8s ease forwards 0.6s;
+    }
+
+    .nav-links {
+      display: flex;
+      justify-content: center;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeSlideUp 0.8s ease forwards 0.7s;
+    }
+    .nav-links a {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      transition: all 0.3s ease;
+    }
+    .nav-links a:hover {
+      color: var(--readout);
+      border-color: rgba(64,232,208,0.2);
+      background: rgba(64,232,208,0.05);
+      text-shadow: 0 0 10px rgba(64,232,208,0.3);
+    }
+
+    /* ── Separator ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--panel-edge) 20%, var(--readout-dim) 50%, var(--panel-edge) 80%, transparent);
+      margin: 1rem 0 2.5rem;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards 0.9s;
+    }
+
+    /* ── Section Label ── */
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--readout-dim);
+      text-align: center;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards 1s;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: linear-gradient(135deg, var(--panel) 0%, rgba(10,16,35,0.95) 100%);
+      border: 1px solid var(--panel-edge);
+      border-radius: 6px;
+      padding: 1.75rem;
+      margin-bottom: 1.25rem;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: border-color 0.4s ease, box-shadow 0.4s ease;
+    }
+    .card.visible {
+      animation: cardReveal 0.6s ease forwards;
+    }
+    .card:hover {
+      border-color: var(--panel-glow);
+      box-shadow: 0 0 30px rgba(64,232,208,0.05), inset 0 0 30px rgba(64,232,208,0.02);
+    }
+
+    /* Corner accents */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 20px;
+      height: 20px;
+      border-top: 1px solid var(--readout-dim);
+      border-left: 1px solid var(--readout-dim);
+      opacity: 0.5;
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 20px;
+      height: 20px;
+      border-bottom: 1px solid var(--readout-dim);
+      border-right: 1px solid var(--readout-dim);
+      opacity: 0.5;
+    }
+
+    .card h2 {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-bright);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.25rem;
+    }
+    .card h2 .card-icon {
+      color: var(--readout);
+      font-size: 1rem;
+    }
+    .card .distros {
+      font-family: var(--font-body);
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-bottom: 1rem;
+      padding-left: 1.6rem;
+    }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--panel-edge);
+      border-radius: 4px;
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      position: relative;
+    }
+    pre::before {
+      content: 'TERMINAL';
+      position: absolute;
+      top: 0;
+      right: 0;
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      color: var(--panel-edge);
+      padding: 0.3rem 0.6rem;
+    }
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+    .prompt { color: var(--prompt-c); user-select: none; }
+    .cmd { color: var(--cmd); }
+
+    .card .note {
+      margin-top: 0.75rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    .card .note code {
+      color: var(--readout-dim);
+      font-size: 0.78rem;
+    }
+
+    /* ── Footer ── */
     footer {
       text-align: center;
       margin-top: 3rem;
-      color: var(--muted);
-      font-size: 0.85rem;
+      padding: 2rem 0 1rem;
+      border-top: 1px solid rgba(26,40,68,0.5);
+      opacity: 0;
+      animation: fadeIn 1s ease forwards 1.8s;
     }
-    footer a { color: var(--accent); text-decoration: none; }
+    footer p {
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-family: var(--font-body);
+    }
+    footer a {
+      color: var(--readout-dim);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    footer a:hover {
+      color: var(--readout);
+      text-shadow: 0 0 8px rgba(64,232,208,0.3);
+    }
+    .footer-mission {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(90,112,144,0.4);
+      margin-top: 1rem;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes cardReveal {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Scanline Effect ── */
+    .scanlines {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 4px
+      );
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .container { padding: 1rem; }
+      header { padding: 2.5rem 0 2rem; }
+      .probe-icon { width: 80px; height: 80px; }
+      .card { padding: 1.25rem; }
+      pre { font-size: 0.75rem; padding: 0.75rem; }
+    }
   </style>
 </head>
 <body>
+  <div class="grid-overlay"></div>
+  <div class="scanlines"></div>
+
   <div class="container">
     <header>
-      <h1>mariner3d</h1>
-      <p>MSLA 3D Printer Controller &mdash; Package Repository</p>
-      <p style="margin-top: 0.75rem;"><span style="background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem 0.75rem; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.9rem; color: var(--green);">v0.5.3</span></p>
-      <div class="links">
-        <a href="https://github.com/amd989/mariner">GitHub</a>
+      
+      <div class="mission-label">MSLA Printer Control System</div>
+      <h1>MARINER <span>2</span></h1>
+      <p class="tagline">Remote 3D printer control, from mission control to your build plate</p>
+      <div class="version-badge">v0.6.0</div>
+      <nav class="nav-links">
+        <a href="https://github.com/amd989/mariner">Source</a>
         <a href="https://github.com/amd989/mariner/releases">Releases</a>
-        <a href="https://github.com/amd989/mariner#readme">Documentation</a>
-      </div>
+        <a href="https://github.com/amd989/mariner#readme">Docs</a>
+      </nav>
     </header>
 
-    <div class="card">
-      <h2>apt</h2>
-      <div class="distros">Debian bookworm / trixie (and derivatives with the same codename, e.g. Raspberry Pi OS)</div>
+    <div class="divider"></div>
+    <div class="section-label">Installation Vectors</div>
+
+    <div class="card" data-delay="0">
+      <h2><span class="card-icon">&#9670;</span> APT</h2>
+      <div class="distros">Debian bookworm / trixie and derivatives (Raspberry Pi OS, Armbian)</div>
       <pre><code><span class="prompt">$ </span><span class="cmd">curl -fsSL https://amd989.github.io/mariner/setup.sh | sudo bash</span>
 <span class="prompt">$ </span><span class="cmd">sudo apt install mariner3d</span></code></pre>
-      <p style="margin-top: 0.75rem; color: var(--muted); font-size: 0.85rem;">The script picks the <code>bookworm</code> or <code>trixie</code> APT suite from your system codename. <code>setup-apt.sh</code> is the same script.</p>
+      <p class="note">The script detects your system codename and selects the matching APT suite. <code>setup-apt.sh</code> is an alias for the same script.</p>
     </div>
 
-    <div class="card">
-      <h2>dnf / yum</h2>
+    <div class="card" data-delay="1">
+      <h2><span class="card-icon">&#9670;</span> DNF / YUM</h2>
       <div class="distros">Fedora, RHEL, Rocky Linux</div>
       <pre><code><span class="prompt">$ </span><span class="cmd">curl -fsSL https://amd989.github.io/mariner/setup-rpm.sh | sudo bash</span>
 <span class="prompt">$ </span><span class="cmd">sudo dnf install mariner3d</span></code></pre>
     </div>
 
-    <div class="card">
-      <h2>Docker</h2>
+    <div class="card" data-delay="2">
+      <h2><span class="card-icon">&#9670;</span> Docker</h2>
       <div class="distros">Any platform with Docker</div>
       <pre><code><span class="prompt">$ </span><span class="cmd">docker pull ghcr.io/amd989/mariner:latest</span>
 <span class="prompt">$ </span><span class="cmd">docker compose up -d</span></code></pre>
@@ -113,7 +468,25 @@
 
     <footer>
       <p>Packages are built and signed automatically on each <a href="https://github.com/amd989/mariner/releases">release</a>.</p>
+      <div class="footer-mission">Mariner Program // Charting new worlds since 2020</div>
     </footer>
   </div>
+
+  <script>
+    // Intersection Observer for card reveal animations
+    const cards = document.querySelectorAll('.card');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const delay = entry.target.dataset.delay || 0;
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, delay * 150);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    cards.forEach(card => observer.observe(card));
+  </script>
 </body>
 </html>
