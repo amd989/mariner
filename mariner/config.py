@@ -150,3 +150,23 @@ def get_sdcp_server_port() -> int:
 
 def get_sdcp_poll_interval_secs() -> float:
     return float(_sdcp_config().get("poll_interval_secs", 3.0))
+
+
+def get_sdcp_history_enabled() -> bool:
+    return bool(_sdcp_config().get("history_enabled", True))
+
+
+def get_sdcp_history_limit() -> int:
+    return int(_sdcp_config().get("history_limit", 50))
+
+
+def get_sdcp_history_path() -> Path:
+    """Where print task history is persisted.
+
+    Defaults into the cache directory, which is often tmpfs, so history is
+    lost on reboot unless this is pointed somewhere durable.
+    """
+    configured = _sdcp_config().get("history_path")
+    if configured:
+        return Path(str(configured))
+    return Path(get_cache_directory()) / "sdcp_history.json"

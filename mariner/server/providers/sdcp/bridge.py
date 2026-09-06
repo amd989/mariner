@@ -21,7 +21,11 @@ from mariner.file_formats.utils import get_file_extension, get_supported_extensi
 from mariner.printer import ChiTuPrinter, PrinterState
 from mariner.server.api import _layer_from_byte_offset
 from mariner.server.providers.sdcp import constants, identity
-from mariner.server.utils import read_cached_sliced_model_file, retry
+from mariner.server.utils import (
+    read_cached_preview,
+    read_cached_sliced_model_file,
+    retry,
+)
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -268,6 +272,24 @@ class PrinterBridge:
             return read_cached_sliced_model_file(path)
         except Exception as exc:  # parsing failures must not break status
             logger.debug("SDCP: could not parse %s: %s", filename, exc)
+            return None
+
+    def has_preview(self, filename: str) -> bool:
+        """Whether *filename* is still on disk and a format we can render."""
+        path = _safe_resolve(filename)
+        if path is None or not os.path.isfile(path):
+            return False
+        return get_file_extension(filename) in get_supported_extensions()
+
+    def render_preview(self, filename: str) -> Optional[bytes]:
+        """PNG preview bytes for *filename*, or None if it cannot be made."""
+        path = _safe_resolve(filename)
+        if path is None or not os.path.isfile(path):
+            return None
+        try:
+            return read_cached_preview(path)
+        except Exception as exc:
+            logger.debug("SDCP: no preview for %s: %s", filename, exc)
             return None
 
     def _task_id(self, filename: str) -> str:

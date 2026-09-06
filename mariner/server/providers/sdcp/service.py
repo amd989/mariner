@@ -9,13 +9,14 @@ import json
 import logging
 import socket
 import threading
-from typing import Any, Dict, Optional, Set
+from typing import Any, Dict, List, Optional, Set
 
 from aiohttp import WSMsgType, web
 
 from mariner import config
 from mariner.server.providers.sdcp import constants, identity, messages
 from mariner.server.providers.sdcp.bridge import PrinterBridge
+from mariner.server.providers.sdcp.history import HistoryStore, TaskStatus
 from mariner.server.providers.sdcp.uploads import UploadManager
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -23,6 +24,10 @@ logger: logging.Logger = logging.getLogger(__name__)
 # aiohttp rejects bodies over client_max_size. Chunks are ~1MB plus multipart
 # overhead; allow generous headroom for clients that use a larger packet size.
 MAX_UPLOAD_BODY: int = 16 * 1024 * 1024
+
+# Consecutive non-printing status samples required before a history task is
+# closed. Guards against a transient serial failure, which reads as idle.
+IDLE_SAMPLES_BEFORE_CLOSE: int = 2
 
 
 class _DiscoveryProtocol(asyncio.DatagramProtocol):
@@ -59,6 +64,13 @@ class SDCPService:
         self._thread: Optional[threading.Thread] = None
         self._last_status: Optional[Dict[str, Any]] = None
         self._name_override: Optional[str] = None
+        self._idle_observations: int = 0
+        self._history: Optional[HistoryStore] = None
+        if config.get_sdcp_history_enabled():
+            self._history = HistoryStore(
+                config.get_sdcp_history_path(),
+                limit=config.get_sdcp_history_limit(),
+            )
 
     # -- lifecycle ------------------------------------------------------
 
@@ -105,6 +117,9 @@ class SDCPService:
         app = web.Application(client_max_size=MAX_UPLOAD_BODY)
         app.router.add_get(constants.WEBSOCKET_PATH, self._handle_websocket)
         app.router.add_post(constants.UPLOAD_PATH, self._handle_upload)
+        app.router.add_get(
+            constants.THUMBNAIL_PATH + "/{task_id}", self._handle_thumbnail
+        )
 
         runner = web.AppRunner(app, access_log=None)
         await runner.setup()
@@ -227,6 +242,9 @@ class SDCPService:
             ack = await self._in_executor(
                 self._bridge.start_print, filename, start_layer
             )
+            # History is driven purely by observation. Seeding a task here
+            # would be closed again by the next status snapshot, because the
+            # printer still reports IDLE for a moment after the command.
             await self._reply(ws, cmd, {"Ack": ack}, request_id)
             await self._broadcast_status()
             return
@@ -291,11 +309,22 @@ class SDCPService:
             return
 
         if cmd == constants.Cmd.HISTORY_TASKS:
-            await self._reply(ws, cmd, {"Ack": 0, "HistoryData": []}, request_id)
+            task_ids = self._history.task_ids() if self._history else []
+            await self._reply(ws, cmd, {"Ack": 0, "HistoryData": task_ids}, request_id)
             return
 
         if cmd == constants.Cmd.TASK_DETAILS:
-            await self._reply(ws, cmd, {"Ack": 0, "HistoryDetailList": []}, request_id)
+            details: List[Dict[str, Any]] = []
+            if self._history is not None:
+                requested = data.get("Id") or []
+                if not isinstance(requested, list):
+                    requested = [requested]
+                details = self._history.details(
+                    [str(t) for t in requested], self._thumbnail_url
+                )
+            await self._reply(
+                ws, cmd, {"Ack": 0, "HistoryDetailList": details}, request_id
+            )
             return
 
         if cmd == constants.Cmd.VIDEO_STREAM:
@@ -349,9 +378,44 @@ class SDCPService:
 
     async def _status_payload(self) -> Dict[str, Any]:
         transferring = self._uploads.is_transferring()
-        return await self._in_executor(
+        payload = await self._in_executor(
             lambda: self._bridge.snapshot_status(transferring=transferring)
         )
+        self._record_history(payload)
+        return payload
+
+    def _record_history(self, payload: Dict[str, Any]) -> None:
+        """Open, advance, and close history tasks from an observed status.
+
+        This is the only place prints are noticed, and it runs on the same
+        cadence as status polling, so prints started while no client is
+        connected are not recorded.
+        """
+        if self._history is None:
+            return
+        info = payload.get("PrintInfo") or {}
+        filename = str(info.get("Filename") or "")
+        printing = int(constants.MachineStatus.PRINTING) in (
+            payload.get("CurrentStatus") or []
+        )
+
+        if printing and filename:
+            self._idle_observations = 0
+            total = int(info.get("TotalLayer") or 0)
+            self._history.start_task(filename, total)
+            self._history.update_progress(
+                filename, int(info.get("CurrentLayer") or 0), total
+            )
+            return
+
+        # A serial read that fails is reported as idle, so closing on the
+        # first non-printing sample would split one print into several tasks
+        # whenever the link blips. Require a couple in a row.
+        self._idle_observations += 1
+        if self._idle_observations >= IDLE_SAMPLES_BEFORE_CLOSE:
+            # Mariner cannot see the difference between a finished print and
+            # a cancelled one, so the store infers it from layers reached.
+            self._history.finish_task(TaskStatus.STOPPED)
 
     async def _attributes_payload(self) -> Dict[str, Any]:
         payload = await self._in_executor(self._bridge.snapshot_attributes)
@@ -475,6 +539,36 @@ class SDCPService:
             await self._broadcast_status()
 
         return web.json_response(messages.upload_success())
+
+    # -- thumbnails -----------------------------------------------------
+
+    def _thumbnail_url(self, task_id: str, filename: str) -> str:
+        """Address for a task's preview, or "" when it cannot be rendered.
+
+        The file may have been deleted since the print, in which case the
+        spec's Thumbnail field is better left empty than pointing at a 404.
+        """
+        if not filename or not self._bridge.has_preview(filename):
+            return ""
+        host = identity.get_local_ip()
+        port = config.get_sdcp_server_port()
+        return f"http://{host}:{port}{constants.THUMBNAIL_PATH}/{task_id}"
+
+    async def _handle_thumbnail(self, request: web.Request) -> web.Response:
+        task_id = request.match_info.get("task_id", "")
+        # Strip a trailing extension so /thumbnail/<id>.png also resolves.
+        task_id = task_id.rsplit(".", 1)[0]
+
+        if self._history is None:
+            raise web.HTTPNotFound()
+        filename = self._history.filename_for(task_id)
+        if not filename:
+            raise web.HTTPNotFound()
+
+        preview = await self._in_executor(self._bridge.render_preview, filename)
+        if preview is None:
+            raise web.HTTPNotFound()
+        return web.Response(body=preview, content_type="image/png")
 
     # -- helpers --------------------------------------------------------
 

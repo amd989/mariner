@@ -14,6 +14,9 @@ DEFAULT_SERVER_PORT = 3030
 
 WEBSOCKET_PATH = "/websocket"
 UPLOAD_PATH = "/uploadFile/upload"
+# Not in the spec: the protocol only says Thumbnail carries an address, so we
+# serve the rendered previews ourselves alongside the rest of the service.
+THUMBNAIL_PATH = "/thumbnail"
 
 # Storage prefixes used by the protocol for file paths.
 LOCAL_PREFIX = "/local/"

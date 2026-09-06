@@ -140,12 +140,35 @@ Supported commands
    * - 258 / 259
      - List files / batch delete
    * - 320 / 321
-     - Historical tasks (always empty)
+     - Print history and task details, with model thumbnails
 
 Commands for hardware Mariner cannot reach are answered honestly rather than
 faked: video stream (386) reports that no camera exists, and time-lapse (387)
-reports failure. Print-history commands return empty lists, since Mariner
-keeps no task history.
+reports failure.
+
+Print history
+^^^^^^^^^^^^^
+
+Mariner keeps no record of past prints on its own, so the provider builds one
+by watching the printer. A task opens when a print is first observed running
+and closes when the printer goes idle. Each task carries the model preview
+Mariner already renders for the web interface, served from the same port as
+the rest of the service, so clients that show a job history display the model
+image alongside it.
+
+History is written to disk as JSON and bounded to the most recent entries, so
+it survives a restart without growing without limit.
+
+Two things follow from history being observation driven:
+
+* Prints started while no client is connected are not recorded, because
+  status polling only runs when somebody is listening.
+* Mariner cannot tell a finished print from a cancelled one over the serial
+  link, so a task that reached its final layer is recorded as completed and
+  anything that stopped earlier is recorded as stopped.
+
+A task's thumbnail is left empty once its file is deleted, rather than
+pointing at an address that would fail to load.
 
 .. note::
    Mariner reads the printer over a serial link that has no notion of the
@@ -172,6 +195,14 @@ SDCP needs no configuration, but every value can be pinned in
    discovery_port = 3000
    server_port = 3030
    poll_interval_secs = 3.0
+   history_enabled = true    # set false to record no print history
+   history_limit = 50        # most recent tasks kept
+   history_path = ""         # defaults into the cache directory
+
+.. note::
+   ``history_path`` defaults inside the cache directory, which is often
+   ``/tmp`` and therefore cleared on reboot. Point it somewhere durable if
+   you want print history to outlive a restart.
 
 The mainboard ID is derived from the host's machine-id so it stays stable
 across restarts, which is what lets clients remember the printer. Pin
