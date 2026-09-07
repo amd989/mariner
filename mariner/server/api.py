@@ -231,15 +231,28 @@ def list_files() -> Union[str, Response]:
             if dir_entry.is_file():
                 sliced_model_file: Optional[SlicedModelFile] = None
                 if get_file_extension(dir_entry.name) in get_supported_extensions():
-                    if dir_entry.name.startswith("._"):
-                        if b"Mac OS X" not in open(dir_entry.path, "rb").read(32):
+                    # A file with a supported extension can still fail to
+                    # parse: truncated, corrupted in transfer, or a format
+                    # variant this build does not understand. That must not
+                    # take down the whole listing, so it is reported as a
+                    # file that cannot be printed.
+                    try:
+                        if dir_entry.name.startswith("._"):
+                            if b"Mac OS X" not in open(dir_entry.path, "rb").read(32):
+                                sliced_model_file = read_cached_sliced_model_file(
+                                    path / dir_entry.name
+                                )
+                        else:
                             sliced_model_file = read_cached_sliced_model_file(
                                 path / dir_entry.name
                             )
-                    else:
-                        sliced_model_file = read_cached_sliced_model_file(
-                            path / dir_entry.name
+                    except Exception:
+                        logger.warning(
+                            "Could not read %s; listing it as unprintable",
+                            dir_entry.name,
+                            exc_info=True,
                         )
+                        sliced_model_file = None
 
                 file_data: Dict[str, Any] = {
                     "filename": dir_entry.name,

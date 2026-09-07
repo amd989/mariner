@@ -134,6 +134,17 @@ class UploadManager:
                     ok=False, error=constants.UploadError.OFFSET_MISMATCH
                 )
 
+            # Clients may pad the final packet. TotalSize is authoritative, so
+            # anything past it is dropped: writing it produces a file longer
+            # than the original, which breaks formats that store a checksum in
+            # their trailing bytes (encrypted CTB seeks back from the end).
+            if session.total_size:
+                remaining = session.total_size - session.offset
+                if remaining <= 0:
+                    data = b""
+                elif len(data) > remaining:
+                    data = data[:remaining]
+
             try:
                 session.handle.write(data)
             except OSError as exc:

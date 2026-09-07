@@ -332,6 +332,65 @@ class UploadManagerTest(TestCase):
         )
         expect(self.manager.is_transferring()).to_equal(False)
 
+    def test_padding_past_total_size_is_dropped(self) -> None:
+        # ChiTuBox pads the final packet. Writing the padding makes the file
+        # longer than the original, which breaks encrypted CTB parsing since
+        # its checksum is read by seeking back from the end.
+        payload = b"real-ctb-payload" * 8
+        result = self.manager.handle_chunk(
+            upload_uuid="abc",
+            filename="model.ctb",
+            offset=0,
+            total_size=len(payload),
+            expected_md5="",
+            verify=False,
+            data=payload + b"\x00\x01\x02\x03",
+        )
+        expect(result.ok).to_equal(True)
+        expect(result.completed).to_equal(True)
+        landed = pathlib.Path("/mnt/usb_share/model.ctb").read_bytes()
+        expect(len(landed)).to_equal(len(payload))
+        expect(landed).to_equal(payload)
+
+    def test_padding_on_the_last_of_several_chunks_is_dropped(self) -> None:
+        payload = bytes(range(256)) * 8
+        half = len(payload) // 2
+        self.manager.handle_chunk(
+            upload_uuid="abc",
+            filename="model.ctb",
+            offset=0,
+            total_size=len(payload),
+            expected_md5="",
+            verify=False,
+            data=payload[:half],
+        )
+        result = self.manager.handle_chunk(
+            upload_uuid="abc",
+            filename="model.ctb",
+            offset=half,
+            total_size=len(payload),
+            expected_md5="",
+            verify=False,
+            data=payload[half:] + b"\xde\xad\xbe\xef",
+        )
+        expect(result.completed).to_equal(True)
+        expect(pathlib.Path("/mnt/usb_share/model.ctb").read_bytes()).to_equal(payload)
+
+    def test_md5_is_checked_against_the_unpadded_file(self) -> None:
+        payload = b"exactly-this-content" * 4
+        digest = hashlib.md5(payload).hexdigest()
+        result = self.manager.handle_chunk(
+            upload_uuid="abc",
+            filename="model.ctb",
+            offset=0,
+            total_size=len(payload),
+            expected_md5=digest,
+            verify=True,
+            data=payload + b"\x00\x00\x00\x00",
+        )
+        expect(result.ok).to_equal(True)
+        expect(result.md5_failed).to_equal(False)
+
     def test_offset_mismatch_is_rejected(self) -> None:
         self.manager.handle_chunk(
             upload_uuid="abc",

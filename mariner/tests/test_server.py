@@ -273,6 +273,22 @@ class MarinerServerTest(TestCase):
             }
         )
 
+    def test_list_files_survives_an_unparseable_file(self) -> None:
+        # A file with a supported extension that cannot be parsed (truncated,
+        # corrupted in transfer, or an unsupported format variant) must not
+        # take down the whole listing.
+        self.fs.create_file(
+            "/mnt/usb_share/corrupt.ctb", contents="not really a ctb file"
+        )
+        response = self.client.get("/api/list_files")
+        expect(response.status_code).to_equal(200)
+
+        files = {f["filename"]: f for f in response.get_json()["files"]}
+        expect("corrupt.ctb" in files).to_equal(True)
+        expect(files["corrupt.ctb"]["can_be_printed"]).to_equal(False)
+        # The healthy file alongside it is still reported normally.
+        expect(files["foobar.ctb"]["can_be_printed"]).to_equal(True)
+
     def test_list_files_from_invalid_directory(self) -> None:
         response = self.client.get("/api/list_files?path=../foo/")
         expect(response.status_code).to_equal(400)
