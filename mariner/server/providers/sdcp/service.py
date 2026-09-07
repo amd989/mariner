@@ -161,7 +161,7 @@ class SDCPService:
             machine_name=config.get_sdcp_machine_name(),
             brand_name=config.get_sdcp_brand_name(),
             mainboard_ip=identity.get_local_ip(peer),
-            firmware_version=config.get_sdcp_firmware_version(),
+            firmware_version=self._bridge.firmware_version(),
             protocol_version=constants.PROTOCOL_VERSION,
             internal_machine_name=config.get_sdcp_internal_machine_name(),
         )

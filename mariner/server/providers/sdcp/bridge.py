@@ -37,6 +37,9 @@ logger: logging.Logger = logging.getLogger(__name__)
 # printer advertising 0x0.
 GEOMETRY_SAMPLE_FILES: int = 5
 
+# Only used when the board cannot be reached and config sets nothing.
+FALLBACK_FIRMWARE_VERSION: str = "V1.0.0"
+
 OPTIONAL_DEVICES: Dict[str, str] = {
     "x_motor": "XMotorStatus",
     "rotate_motor": "RotateMotorStatus",
@@ -103,6 +106,9 @@ class PrinterBridge:
     def __init__(self) -> None:
         self._lock = threading.Lock()
         self._previous_status: int = int(constants.MachineStatus.IDLE)
+        # Read once from the board and kept: it cannot change while running,
+        # and every attribute report would otherwise cost a serial round trip.
+        self._firmware_version: Optional[str] = None
 
     # -- printer reads -------------------------------------------------
 
@@ -188,7 +194,7 @@ class PrinterBridge:
         except OSError:
             remaining = 0
 
-        firmware = config.get_sdcp_firmware_version()
+        firmware = self.firmware_version()
         resolution, xyz_size = self._machine_geometry()
 
         return {
@@ -222,6 +228,39 @@ class PrinterBridge:
 
     def printer_name(self) -> str:
         return config.get_printer_display_name() or "Mariner"
+
+    def firmware_version(self) -> str:
+        """The board's real firmware version, e.g. ``V4.5.0_1.0_e13_LCDE1``.
+
+        Config wins if set. Otherwise it is read from the board once via
+        M4002, falling back to a placeholder only if the board cannot be
+        reached, so clients see the measured value rather than an invented
+        one.
+        """
+        configured = config.get_sdcp_firmware_version()
+        if configured:
+            return configured
+
+        if self._firmware_version is None:
+            self._firmware_version = self._read_firmware_version()
+        return self._firmware_version or FALLBACK_FIRMWARE_VERSION
+
+    def _read_firmware_version(self) -> Optional[str]:
+        with self._lock:
+            try:
+                with ChiTuPrinter() as printer:
+                    version = retry(
+                        printer.get_firmware_version,
+                        _TRANSIENT_ERRORS,
+                        num_retries=2,
+                    )
+            except _TRANSIENT_ERRORS:
+                return None
+            except OSError as exc:
+                logger.debug("SDCP: could not read firmware version: %s", exc)
+                return None
+        logger.info("SDCP: printer firmware version is %s", version)
+        return str(version)
 
     def _devices_status(self) -> Dict[str, int]:
         """The device self-check report.

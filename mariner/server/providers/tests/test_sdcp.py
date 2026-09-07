@@ -12,6 +12,7 @@ from pyfakefs.fake_filesystem_unittest import TestCase
 
 from mariner import config
 from mariner.config import _get_config
+from mariner.exceptions import UnexpectedPrinterResponse
 from mariner.printer import ChiTuPrinter, PrinterState, PrintStatus
 from mariner.server.providers.sdcp import constants, identity, messages
 from mariner.server.providers.sdcp.bridge import PrinterBridge, strip_storage_prefix
@@ -278,6 +279,31 @@ class SDCPBridgeTest(TestCase):
             devices = self.bridge.snapshot_attributes()["DevicesStatus"]
         expect(devices["XMotorStatus"]).to_equal(1)
         expect(devices["RotateMotorStatus"]).to_equal(1)
+
+    def test_firmware_version_is_read_from_the_printer(self) -> None:
+        self.printer_mock.get_firmware_version.return_value = "V4.5.0_1.0_e13_LCDE1"
+        attributes = self.bridge.snapshot_attributes()
+        expect(attributes["FirmwareVersion"]).to_equal("V4.5.0_1.0_e13_LCDE1")
+
+    def test_firmware_version_is_read_only_once(self) -> None:
+        self.printer_mock.get_firmware_version.return_value = "V4.5.0"
+        self.bridge.firmware_version()
+        self.bridge.firmware_version()
+        self.bridge.firmware_version()
+        # Serial is contended, and the version cannot change while running.
+        expect(self.printer_mock.get_firmware_version.call_count).to_equal(1)
+
+    def test_configured_firmware_version_wins(self) -> None:
+        self.printer_mock.get_firmware_version.return_value = "V4.5.0"
+        with patch.object(config, "get_sdcp_firmware_version", lambda: "V9.9.9"):
+            expect(self.bridge.firmware_version()).to_equal("V9.9.9")
+        self.printer_mock.get_firmware_version.assert_not_called()
+
+    def test_firmware_version_falls_back_when_printer_is_unreachable(self) -> None:
+        self.printer_mock.get_firmware_version.side_effect = UnexpectedPrinterResponse(
+            "garbage"
+        )
+        expect(self.bridge.firmware_version()).to_equal("V1.0.0")
 
     def test_geometry_skips_an_unreadable_file(self) -> None:
         # A corrupt upload must not leave the printer advertising 0x0 when a

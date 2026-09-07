@@ -120,7 +120,8 @@ def get_sdcp_machine_name() -> str:
 
 
 def get_sdcp_firmware_version() -> str:
-    return str(_sdcp_config().get("firmware_version", "V1.0.0"))
+    """Firmware version to advertise. Empty means read it from the printer."""
+    return str(_sdcp_config().get("firmware_version", ""))
 
 
 def get_sdcp_resolution() -> str:
