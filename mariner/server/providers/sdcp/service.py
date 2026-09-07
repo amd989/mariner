@@ -9,9 +9,10 @@ import json
 import logging
 import socket
 import threading
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set, cast
 
 from aiohttp import WSMsgType, web
+from pyre_extensions import none_throws
 
 from mariner import config
 from mariner.server.providers.sdcp import constants, identity, messages
@@ -38,8 +39,11 @@ class _DiscoveryProtocol(asyncio.DatagramProtocol):
         self._transport: Optional[asyncio.DatagramTransport] = None
 
     def connection_made(self, transport: asyncio.BaseTransport) -> None:
-        assert isinstance(transport, asyncio.DatagramTransport)
-        self._transport = transport
+        # Narrow for the type checker only. An isinstance check here is wrong:
+        # before CPython 3.12, _SelectorDatagramTransport does not inherit
+        # from DatagramTransport, so it would raise on exactly the Pythons
+        # this runs on, leaving discovery silently dead.
+        self._transport = cast(asyncio.DatagramTransport, transport)
 
     def datagram_received(self, data: bytes, addr: Any) -> None:
         if data.strip() != constants.DISCOVERY_MAGIC:
@@ -143,8 +147,8 @@ class SDCPService:
             sock.close()
             return None
 
-        assert self._loop is not None
-        transport, _protocol = await self._loop.create_datagram_endpoint(
+        loop = none_throws(self._loop)
+        transport, _protocol = await loop.create_datagram_endpoint(
             lambda: _DiscoveryProtocol(self), sock=sock
         )
         return transport
@@ -573,5 +577,5 @@ class SDCPService:
     # -- helpers --------------------------------------------------------
 
     async def _in_executor(self, func: Any, *args: Any) -> Any:
-        assert self._loop is not None
-        return await self._loop.run_in_executor(None, func, *args)
+        loop = none_throws(self._loop)
+        return await loop.run_in_executor(None, func, *args)
