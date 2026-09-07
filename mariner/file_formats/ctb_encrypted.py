@@ -258,8 +258,15 @@ class CTBEncryptedFile(SlicedModelFile):
             checksum_hash = computeSHA256Hash(checksum_bytes)
             encrypted_hash = _aes_crypt(checksum_hash, True)
 
-            file.seek(-HASH_LENGTH, 2)
-            hash = file.read(HASH_LENGTH)
+            # The header says where the signature is, so use it. Seeking back
+            # from the end instead assumes the signature is the last thing in
+            # the file, which breaks on writers that append anything after it.
+            if ctb_header.signature_offset and ctb_header.signature_size:
+                file.seek(ctb_header.signature_offset)
+                hash = file.read(ctb_header.signature_size)
+            else:
+                file.seek(-HASH_LENGTH, 2)
+                hash = file.read(HASH_LENGTH)
             if not (set(hash) == set(encrypted_hash)):
                 raise TypeError(
                     "The file checksum does not match, malformed file.\n"

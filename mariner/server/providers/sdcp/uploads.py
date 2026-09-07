@@ -128,6 +128,15 @@ class UploadManager:
                     handle=handle,
                 )
                 self._sessions[upload_uuid] = session
+                logger.info(
+                    "SDCP: upload starting: %s uuid=%s total_size=%d "
+                    "check=%s declared_md5=%s",
+                    safe_name,
+                    upload_uuid,
+                    total_size,
+                    verify,
+                    expected_md5 or "<none>",
+                )
 
             if offset != session.offset:
                 return ChunkResult(
@@ -166,14 +175,25 @@ class UploadManager:
         session.close()
         self._sessions.pop(upload_uuid, None)
 
+        computed = session.hasher.hexdigest()
+        logger.info(
+            "SDCP: upload finished: %s bytes=%d declared_total=%d check=%s "
+            "declared_md5=%s computed_md5=%s",
+            session.filename,
+            session.offset,
+            session.total_size,
+            session.verify,
+            session.expected_md5 or "<none>",
+            computed,
+        )
+
         if session.verify and session.expected_md5:
-            actual = session.hasher.hexdigest()
-            if actual != session.expected_md5:
+            if computed != session.expected_md5:
                 logger.warning(
                     "SDCP: MD5 mismatch for %s (expected %s, got %s)",
                     session.filename,
                     session.expected_md5,
-                    actual,
+                    computed,
                 )
                 self._unlink(session.scratch_path)
                 return ChunkResult(
