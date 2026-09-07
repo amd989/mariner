@@ -32,6 +32,11 @@ logger: logging.Logger = logging.getLogger(__name__)
 # Hardware the protocol can describe but that most MSLA printers do not
 # have. Reported only when config says the machine is fitted with it, since
 # SDCP's 0 means "disconnected" rather than "not fitted".
+# How many recent files to try when deriving the machine's resolution and
+# build volume. More than one so a single unreadable file does not leave the
+# printer advertising 0x0.
+GEOMETRY_SAMPLE_FILES: int = 5
+
 OPTIONAL_DEVICES: Dict[str, str] = {
     "x_motor": "XMotorStatus",
     "rotate_motor": "RotateMotorStatus",
@@ -241,7 +246,12 @@ class PrinterBridge:
         return devices
 
     def _machine_geometry(self) -> Tuple[str, str]:
-        """Resolution and build volume, from config or the newest sliced file."""
+        """Resolution and build volume, from config or a sliced file.
+
+        Several files are tried, newest first, because a single unreadable
+        one (truncated, or a format variant this build cannot parse) would
+        otherwise leave the machine reporting 0x0.
+        """
         resolution = config.get_sdcp_resolution()
         xyz_size = config.get_sdcp_xyz_size()
         if resolution and xyz_size:
@@ -249,28 +259,28 @@ class PrinterBridge:
 
         derived_resolution = ""
         derived_xyz = ""
-        newest = self._newest_printable_file()
-        if newest is not None:
-            sliced = self._read_sliced(newest)
-            if sliced is not None:
-                try:
-                    width, height = sliced.resolution
-                    derived_resolution = f"{width}x{height}"
-                    bed = sliced.bed_size_mm
-                    derived_xyz = f"{bed[0]:g}x{bed[1]:g}x{bed[2]:g}"
-                except (TypeError, ValueError, IndexError):
-                    pass
+        for filename in self._printable_files_newest_first(GEOMETRY_SAMPLE_FILES):
+            sliced = self._read_sliced(filename)
+            if sliced is None:
+                continue
+            try:
+                width, height = sliced.resolution
+                bed = sliced.bed_size_mm
+                derived_resolution = f"{width}x{height}"
+                derived_xyz = f"{bed[0]:g}x{bed[1]:g}x{bed[2]:g}"
+            except (TypeError, ValueError, IndexError):
+                continue
+            break
 
         return (
             resolution or derived_resolution or "0x0",
             xyz_size or derived_xyz or "0x0x0",
         )
 
-    def _newest_printable_file(self) -> Optional[str]:
+    def _printable_files_newest_first(self, limit: int) -> List[str]:
         files_dir = config.get_files_directory()
         supported = get_supported_extensions()
-        newest: Optional[str] = None
-        newest_mtime = -1.0
+        candidates: List[Tuple[float, str]] = []
         try:
             with os.scandir(files_dir) as entries:
                 for entry in entries:
@@ -278,13 +288,11 @@ class PrinterBridge:
                         continue
                     if get_file_extension(entry.name) not in supported:
                         continue
-                    mtime = entry.stat().st_mtime
-                    if mtime > newest_mtime:
-                        newest_mtime = mtime
-                        newest = entry.name
+                    candidates.append((entry.stat().st_mtime, entry.name))
         except OSError:
-            return None
-        return newest
+            return []
+        candidates.sort(reverse=True)
+        return [name for _mtime, name in candidates[:limit]]
 
     def _read_sliced(self, filename: str) -> Optional[Any]:
         path = _safe_resolve(filename)

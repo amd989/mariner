@@ -152,6 +152,17 @@ def get_sdcp_poll_interval_secs() -> float:
     return float(_sdcp_config().get("poll_interval_secs", 3.0))
 
 
+def get_sdcp_internal_machine_name() -> str:
+    """Bare model name, without the brand, for client picture matching.
+
+    ChituManager keys its printer images on a normalised model name. In the
+    discovery reply it prefixes BrandName, so sending the bare model here
+    (e.g. "Mars 3" alongside brand "ELEGOO") matches without the brand being
+    counted twice. Empty means the field is not sent at all.
+    """
+    return str(_sdcp_config().get("internal_machine_name", ""))
+
+
 def get_sdcp_optional_devices() -> List[str]:
     """Optional hardware fitted to this machine, e.g. ``x_motor``.
 

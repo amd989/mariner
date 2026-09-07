@@ -27,19 +27,25 @@ def discovery_response(
     mainboard_ip: str,
     firmware_version: str,
     protocol_version: str,
+    internal_machine_name: str = "",
 ) -> Dict[str, Any]:
-    return {
-        "Id": identity.get_brand_id(),
-        "Data": {
-            "Name": name,
-            "MachineName": machine_name,
-            "BrandName": brand_name,
-            "MainboardIP": mainboard_ip,
-            "MainboardID": identity.get_mainboard_id(),
-            "ProtocolVersion": protocol_version,
-            "FirmwareVersion": firmware_version,
-        },
+    data: Dict[str, Any] = {
+        "Name": name,
+        "MachineName": machine_name,
+        "BrandName": brand_name,
+        "MainboardIP": mainboard_ip,
+        "MainboardID": identity.get_mainboard_id(),
+        "ProtocolVersion": protocol_version,
+        "FirmwareVersion": firmware_version,
     }
+    # Undocumented in the v3.0.0 spec, but ChituManager prefers it over
+    # MachineName when matching a printer to its picture, and in the
+    # discovery reply it concatenates BrandName in front of it. Setting it
+    # to the bare model lets the brand stay populated without the brand
+    # being doubled into the lookup key. Omitted entirely when unset.
+    if internal_machine_name:
+        data["InternalMachineName"] = internal_machine_name
+    return {"Id": identity.get_brand_id(), "Data": data}
 
 
 def response(

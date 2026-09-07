@@ -1,6 +1,8 @@
 import hashlib
 import json
+import os
 import pathlib
+import re
 from typing import Any
 from unittest.mock import Mock, patch
 
@@ -81,6 +83,53 @@ class MessageEnvelopeTest(TestCase):
         expect(message["Data"]["MainboardID"]).to_equal(identity.get_mainboard_id())
         # Discovery replies must be a single UDP datagram of valid JSON.
         expect(json.loads(json.dumps(message))).to_equal(message)
+
+    def test_discovery_omits_internal_machine_name_by_default(self) -> None:
+        message = messages.discovery_response(
+            name="My Printer",
+            machine_name="ELEGOO Mars 3",
+            brand_name="ELEGOO",
+            mainboard_ip="192.168.1.5",
+            firmware_version="V1.0.0",
+            protocol_version="V3.0.0",
+        )
+        expect("InternalMachineName" in message["Data"]).to_equal(False)
+
+    def test_discovery_includes_internal_machine_name_when_set(self) -> None:
+        message = messages.discovery_response(
+            name="My Printer",
+            machine_name="ELEGOO Mars 3",
+            brand_name="ELEGOO",
+            mainboard_ip="192.168.1.5",
+            firmware_version="V1.0.0",
+            protocol_version="V3.0.0",
+            internal_machine_name="Mars 3",
+        )
+        expect(message["Data"]["InternalMachineName"]).to_equal("Mars 3")
+        expect(message["Data"]["BrandName"]).to_equal("ELEGOO")
+
+    def test_client_picture_key_resolves_on_both_lookup_paths(self) -> None:
+        """ChituManager derives its image key two different ways.
+
+        Discovery uses BrandName + (InternalMachineName or MachineName);
+        attributes uses (InternalMachineName or MachineName) alone. Both must
+        normalise to the same key or the printer falls back to a generic
+        picture.
+        """
+
+        def normalise(value: str) -> str:
+            return re.sub(r"\s*", "", value).lower()
+
+        brand = "ELEGOO"
+        machine_name = "ELEGOO Mars 3"
+        internal = "Mars 3"
+
+        discovery_key = normalise(brand + internal)
+        # Attributes deliberately carry no InternalMachineName.
+        attributes_key = normalise(machine_name)
+
+        expect(discovery_key).to_equal("elegoomars3")
+        expect(attributes_key).to_equal("elegoomars3")
 
     def test_upload_success_payload(self) -> None:
         expect(messages.upload_success()).to_equal(
@@ -229,6 +278,38 @@ class SDCPBridgeTest(TestCase):
             devices = self.bridge.snapshot_attributes()["DevicesStatus"]
         expect(devices["XMotorStatus"]).to_equal(1)
         expect(devices["RotateMotorStatus"]).to_equal(1)
+
+    def test_geometry_skips_an_unreadable_file(self) -> None:
+        # A corrupt upload must not leave the printer advertising 0x0 when a
+        # readable file is also present.
+        self.fs.create_file("/mnt/usb_share/corrupt.ctb", contents="garbage")
+        os.utime("/mnt/usb_share/corrupt.ctb", (2_000_000_000, 2_000_000_000))
+
+        attributes = self.bridge.snapshot_attributes()
+        expect(attributes["Resolution"]).to_equal("1440x2560")
+        expect(attributes["XYZsize"]).to_equal("68.04x120.96x150")
+
+    def test_geometry_falls_back_when_nothing_is_readable(self) -> None:
+        os.remove("/mnt/usb_share/foobar.ctb")
+        self.fs.create_file("/mnt/usb_share/corrupt.ctb", contents="garbage")
+
+        attributes = self.bridge.snapshot_attributes()
+        expect(attributes["Resolution"]).to_equal("0x0")
+        expect(attributes["XYZsize"]).to_equal("0x0x0")
+
+    def test_configured_geometry_wins_over_derivation(self) -> None:
+        with patch.object(config, "get_sdcp_resolution", lambda: "4098x2560"):
+            with patch.object(config, "get_sdcp_xyz_size", lambda: "143.43x89.6x175"):
+                attributes = self.bridge.snapshot_attributes()
+        expect(attributes["Resolution"]).to_equal("4098x2560")
+        expect(attributes["XYZsize"]).to_equal("143.43x89.6x175")
+
+    def test_attributes_never_carry_internal_machine_name(self) -> None:
+        # ChituManager's attributes lookup omits BrandName, so MachineName
+        # alone has to be the full key; an InternalMachineName here would
+        # shadow it and break the picture match.
+        attributes = self.bridge.snapshot_attributes()
+        expect("InternalMachineName" in attributes).to_equal(False)
 
     def test_attributes_derive_geometry_from_sliced_file(self) -> None:
         attributes = self.bridge.snapshot_attributes()

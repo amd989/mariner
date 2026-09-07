@@ -163,6 +163,7 @@ class SDCPService:
             mainboard_ip=identity.get_local_ip(peer),
             firmware_version=config.get_sdcp_firmware_version(),
             protocol_version=constants.PROTOCOL_VERSION,
+            internal_machine_name=config.get_sdcp_internal_machine_name(),
         )
 
     def printer_name(self) -> str:
