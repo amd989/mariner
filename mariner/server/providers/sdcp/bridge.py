@@ -29,6 +29,14 @@ from mariner.server.utils import (
 
 logger: logging.Logger = logging.getLogger(__name__)
 
+# Hardware the protocol can describe but that most MSLA printers do not
+# have. Reported only when config says the machine is fitted with it, since
+# SDCP's 0 means "disconnected" rather than "not fitted".
+OPTIONAL_DEVICES: Dict[str, str] = {
+    "x_motor": "XMotorStatus",
+    "rotate_motor": "RotateMotorStatus",
+}
+
 _TRANSIENT_ERRORS: Tuple[Type[Exception], ...] = (
     UnexpectedPrinterResponse,
     serial.SerialException,
@@ -197,15 +205,7 @@ class PrinterBridge:
             "SupportFileType": [
                 ext.lstrip(".").upper() for ext in get_supported_extensions()
             ],
-            "DevicesStatus": {
-                "TempSensorStatusOfUVLED": 1,
-                "LCDStatus": 1,
-                "SgStatus": 1,
-                "ZMotorStatus": 1,
-                "RotateMotorStatus": 0,
-                "RelaseFilmState": 1,
-                "XMotorStatus": 0,
-            },
+            "DevicesStatus": self._devices_status(),
             "ReleaseFilmMax": 0,
             "TempOfUVLEDMax": 0,
             "CameraStatus": 0,
@@ -217,6 +217,28 @@ class PrinterBridge:
 
     def printer_name(self) -> str:
         return config.get_printer_display_name() or "Mariner"
+
+    def _devices_status(self) -> Dict[str, int]:
+        """The device self-check report.
+
+        Mariner cannot read any of these sensors over the ChiTu serial link,
+        so this reports "no fault detected" rather than inventing failures.
+        Hardware that is not fitted is omitted instead of being reported as
+        0, which the protocol defines as disconnected and clients surface as
+        an error.
+        """
+        devices: Dict[str, int] = {
+            "TempSensorStatusOfUVLED": 1,
+            "LCDStatus": 1,
+            "SgStatus": 1,
+            "ZMotorStatus": 1,
+            "RelaseFilmState": 1,
+        }
+        fitted = config.get_sdcp_optional_devices()
+        for name, field in OPTIONAL_DEVICES.items():
+            if name in fitted:
+                devices[field] = 1
+        return devices
 
     def _machine_geometry(self) -> Tuple[str, str]:
         """Resolution and build volume, from config or the newest sliced file."""

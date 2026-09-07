@@ -8,6 +8,7 @@ from pyexpect import expect
 from pyfakefs.fake_filesystem import FakeFilesystem
 from pyfakefs.fake_filesystem_unittest import TestCase
 
+from mariner import config
 from mariner.config import _get_config
 from mariner.printer import ChiTuPrinter, PrinterState, PrintStatus
 from mariner.server.providers.sdcp import constants, identity, messages
@@ -195,6 +196,39 @@ class SDCPBridgeTest(TestCase):
         expect(attributes["MainboardID"]).to_equal(identity.get_mainboard_id())
         expect("FILE_TRANSFER" in attributes["Capabilities"]).to_equal(True)
         expect("PRINT_CONTROL" in attributes["Capabilities"]).to_equal(True)
+
+    def test_absent_hardware_is_omitted_not_reported_broken(self) -> None:
+        # SDCP's 0 means "disconnected", which clients show as a fault, so
+        # hardware a Mars 3 does not have must be left out entirely rather
+        # than reported as 0.
+        devices = self.bridge.snapshot_attributes()["DevicesStatus"]
+        expect("XMotorStatus" in devices).to_equal(False)
+        expect("RotateMotorStatus" in devices).to_equal(False)
+
+    def test_devices_present_on_every_printer_report_healthy(self) -> None:
+        devices = self.bridge.snapshot_attributes()["DevicesStatus"]
+        expect(devices["ZMotorStatus"]).to_equal(1)
+        expect(devices["LCDStatus"]).to_equal(1)
+        expect(devices["TempSensorStatusOfUVLED"]).to_equal(1)
+        expect(devices["RelaseFilmState"]).to_equal(1)
+        expect(devices["SgStatus"]).to_equal(1)
+
+    def test_optional_hardware_is_reported_when_configured(self) -> None:
+        with patch.object(config, "get_sdcp_optional_devices", lambda: ["x_motor"]):
+            devices = self.bridge.snapshot_attributes()["DevicesStatus"]
+        expect(devices["XMotorStatus"]).to_equal(1)
+        # Only what was configured; the rotary axis stays omitted.
+        expect("RotateMotorStatus" in devices).to_equal(False)
+
+    def test_both_optional_devices_can_be_enabled(self) -> None:
+        with patch.object(
+            config,
+            "get_sdcp_optional_devices",
+            lambda: ["x_motor", "rotate_motor"],
+        ):
+            devices = self.bridge.snapshot_attributes()["DevicesStatus"]
+        expect(devices["XMotorStatus"]).to_equal(1)
+        expect(devices["RotateMotorStatus"]).to_equal(1)
 
     def test_attributes_derive_geometry_from_sliced_file(self) -> None:
         attributes = self.bridge.snapshot_attributes()

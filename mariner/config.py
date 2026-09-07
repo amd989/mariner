@@ -1,6 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, MutableMapping, Optional, Sequence
+from typing import Any, Dict, List, MutableMapping, Optional, Sequence
 
 import toml
 
@@ -150,6 +150,19 @@ def get_sdcp_server_port() -> int:
 
 def get_sdcp_poll_interval_secs() -> float:
     return float(_sdcp_config().get("poll_interval_secs", 3.0))
+
+
+def get_sdcp_optional_devices() -> List[str]:
+    """Optional hardware fitted to this machine, e.g. ``x_motor``.
+
+    SDCP's device self-check has no value meaning "not fitted": 0 is
+    "disconnected", which clients show as a fault. So hardware not listed
+    here is left out of the report entirely rather than reported as 0.
+    """
+    configured = _sdcp_config().get("optional_devices")
+    if not isinstance(configured, list):
+        return []
+    return [str(device).strip().lower() for device in configured]
 
 
 def get_sdcp_history_enabled() -> bool:
