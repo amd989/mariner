@@ -199,7 +199,10 @@ class SDCPService:
         text = (raw or "").strip()
         # The heartbeat is the bare string "ping"; some clients quote it.
         if text in ("ping", '"ping"'):
-            await ws.send_str("pong")
+            # Through _send_text, because a client that closed the socket
+            # between its ping and this reply is an ordinary disconnect, not
+            # a handler failure worth a traceback.
+            await self._send_text(ws, "pong")
             return
 
         try:
@@ -453,11 +456,14 @@ class SDCPService:
             await self._send(ws, message)
 
     async def _send(self, ws: web.WebSocketResponse, message: Dict[str, Any]) -> None:
+        await self._send_text(ws, json.dumps(message))
+
+    async def _send_text(self, ws: web.WebSocketResponse, text: str) -> None:
         if ws.closed:
             self._clients.discard(ws)
             return
         try:
-            await ws.send_str(json.dumps(message))
+            await ws.send_str(text)
         except (ConnectionResetError, RuntimeError) as exc:
             logger.debug("SDCP: dropping client: %s", exc)
             self._clients.discard(ws)

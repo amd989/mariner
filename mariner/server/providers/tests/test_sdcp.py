@@ -3,9 +3,11 @@ import json
 import os
 import pathlib
 import re
-from typing import Any
+from typing import Any, List, cast
+from unittest import IsolatedAsyncioTestCase
 from unittest.mock import Mock, patch
 
+from aiohttp.client_exceptions import ClientConnectionResetError
 from pyexpect import expect
 from pyfakefs.fake_filesystem import FakeFilesystem
 from pyfakefs.fake_filesystem_unittest import TestCase
@@ -16,6 +18,7 @@ from mariner.exceptions import UnexpectedPrinterResponse
 from mariner.printer import ChiTuPrinter, PrinterState, PrintStatus
 from mariner.server.providers.sdcp import constants, identity, messages
 from mariner.server.providers.sdcp.bridge import PrinterBridge, strip_storage_prefix
+from mariner.server.providers.sdcp.service import SDCPService
 from mariner.server.providers.sdcp.uploads import UploadManager
 
 
@@ -667,3 +670,55 @@ class UploadManagerTest(TestCase):
         expect(ack).to_equal(int(constants.FileTransferAck.SUCCESS))
         expect(self.manager.is_transferring()).to_equal(False)
         expect(pathlib.Path("/mnt/usb_share/model.ctb").exists()).to_equal(False)
+
+
+class _ClosingWebSocket:
+    """A socket the peer closed between its ping and our reply."""
+
+    closed: bool = False
+    sent: int = 0
+
+    async def send_str(self, text: str) -> None:
+        self.sent += 1
+        raise ClientConnectionResetError("Cannot write to closing transport")
+
+
+class _OpenWebSocket:
+    closed: bool = False
+
+    def __init__(self) -> None:
+        self.sent: List[str] = []
+
+    async def send_str(self, text: str) -> None:
+        self.sent.append(text)
+
+
+class ServiceHeartbeatTest(IsolatedAsyncioTestCase):
+    service: SDCPService
+
+    def setUp(self) -> None:
+        _get_config.cache_clear()
+        # __init__ reads config and may open a history file; the send paths
+        # under test need none of that.
+        self.service = SDCPService.__new__(SDCPService)
+        self.service._clients = set()
+
+    async def test_ping_is_answered_with_pong(self) -> None:
+        ws = _OpenWebSocket()
+        await self.service._handle_text(cast(Any, ws), "ping")
+        expect(ws.sent).to_equal(["pong"])
+
+    async def test_quoted_ping_is_answered_with_pong(self) -> None:
+        ws = _OpenWebSocket()
+        await self.service._handle_text(cast(Any, ws), '"ping"')
+        expect(ws.sent).to_equal(["pong"])
+
+    async def test_pong_to_a_closing_socket_drops_the_client(self) -> None:
+        # aiohttp raises from send_str when the peer has gone away. Letting
+        # that escape aborts the read loop with an ERROR traceback for what
+        # is an ordinary disconnect.
+        ws = _ClosingWebSocket()
+        self.service._clients.add(cast(Any, ws))
+        await self.service._handle_text(cast(Any, ws), "ping")
+        expect(ws.sent).to_equal(1)
+        expect(len(self.service._clients)).to_equal(0)
