@@ -347,6 +347,30 @@ class SDCPBridgeTest(TestCase):
         expect(ack).to_equal(int(constants.PrintCtrlAck.OK))
         self.printer_mock.start_printing.assert_called_once_with("foobar.ctb")
 
+    def test_uploaded_name_can_be_printed_verbatim(self) -> None:
+        """Upload then print, under the name the client actually sends.
+
+        Reproduces the reported failure: the upload stored a rewritten name
+        while Cmd 128 asked for the original, so the print was rejected as
+        NOT_FOUND even though the file was sitting in the directory.
+        """
+        name = "a-precise-chimney_6(1).stl_1_0.050_2.500_2026_09_07.ctb"
+        manager = UploadManager()
+        result = manager.handle_chunk(
+            upload_uuid="abc",
+            filename=name,
+            offset=0,
+            total_size=len(self.ctb_file_contents),
+            expected_md5="",
+            verify=False,
+            data=self.ctb_file_contents,
+        )
+        expect(result.completed).to_equal(True)
+
+        ack = self.bridge.start_print(f"/local/{name}")
+        expect(ack).to_equal(int(constants.PrintCtrlAck.OK))
+        self.printer_mock.start_printing.assert_called_once_with(name)
+
     def test_start_print_missing_file(self) -> None:
         ack = self.bridge.start_print("/local/nope.ctb")
         expect(ack).to_equal(int(constants.PrintCtrlAck.NOT_FOUND))
@@ -583,10 +607,32 @@ class UploadManagerTest(TestCase):
         expect(result.ok).to_equal(False)
         expect(result.format_failed).to_equal(True)
 
-    def test_filename_is_sanitized(self) -> None:
-        result = self._upload(b"data" * 64, filename=".._.._etc_passwd.ctb")
+    def test_filename_with_parentheses_is_preserved(self) -> None:
+        # ChiTuBox names files like "model_6(1).stl_....ctb" and then asks to
+        # print under that exact name. Rewriting it on upload leaves the print
+        # command looking for a file that does not exist.
+        name = "a-precise-chimney_6(1).stl_1_0.050_2.500.ctb"
+        result = self._upload(b"data" * 64, filename=name)
         expect(result.ok).to_equal(True)
-        expect(pathlib.Path("/mnt/usb_share/etc_passwd.ctb").exists()).to_equal(True)
+        expect(result.filename).to_equal(name)
+        expect((pathlib.Path("/mnt/usb_share") / name).exists()).to_equal(True)
+
+    def test_filename_with_spaces_and_unicode_is_preserved(self) -> None:
+        name = "my model éà.ctb"
+        result = self._upload(b"data" * 64, filename=name)
+        expect(result.ok).to_equal(True)
+        expect((pathlib.Path("/mnt/usb_share") / name).exists()).to_equal(True)
+
+    def test_filename_with_a_path_separator_is_rejected(self) -> None:
+        result = self._upload(b"data" * 64, filename="../../etc/passwd.ctb")
+        expect(result.ok).to_equal(False)
+        expect(result.format_failed).to_equal(True)
+        expect(pathlib.Path("/mnt/usb_share/passwd.ctb").exists()).to_equal(False)
+
+    def test_filename_with_a_backslash_is_rejected(self) -> None:
+        result = self._upload(b"data" * 64, filename="..\\..\\evil.ctb")
+        expect(result.ok).to_equal(False)
+        expect(result.format_failed).to_equal(True)
 
     def test_restarting_at_offset_zero_resets_the_transfer(self) -> None:
         self.manager.handle_chunk(

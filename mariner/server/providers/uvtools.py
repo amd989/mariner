@@ -39,9 +39,8 @@ from mariner.exceptions import UnexpectedPrinterResponse
 from mariner.file_formats.utils import get_file_extension, get_supported_extensions
 from mariner.printer import ChiTuPrinter, PrinterState
 from mariner.server.providers.base import NetworkPrintProvider
+from mariner.server.providers.filenames import safe_filename
 from mariner.server.utils import read_cached_sliced_model_file, retry
-
-from werkzeug.utils import secure_filename
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -136,8 +135,9 @@ class UVToolsProvider(NetworkPrintProvider):
         (no multipart, no form fields).  The filename comes from the
         URL path.
         """
-        safe_name = secure_filename(filename)
-        if not safe_name:
+        safe_name = safe_filename(filename)
+        if safe_name is None:
+            logger.warning("UVTools: refusing unsafe filename %r", filename)
             abort(400)
 
         ext = get_file_extension(safe_name)
@@ -165,8 +165,9 @@ class UVToolsProvider(NetworkPrintProvider):
         return jsonify({"success": True, "filename": safe_name})
 
     def _print_file(self, filename: str) -> Union[str, Response]:
-        safe_name = secure_filename(filename)
-        if not safe_name:
+        safe_name = safe_filename(filename)
+        if safe_name is None:
+            logger.warning("UVTools: refusing unsafe filename %r", filename)
             abort(400)
 
         file_path = config.get_files_directory() / safe_name
@@ -180,8 +181,9 @@ class UVToolsProvider(NetworkPrintProvider):
         return jsonify({"success": True})
 
     def _delete_file(self, filename: str) -> Union[str, Response]:
-        safe_name = secure_filename(filename)
-        if not safe_name:
+        safe_name = safe_filename(filename)
+        if safe_name is None:
+            logger.warning("UVTools: refusing unsafe filename %r", filename)
             abort(400)
 
         files_dir = config.get_files_directory().resolve()

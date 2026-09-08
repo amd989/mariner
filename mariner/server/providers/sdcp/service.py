@@ -205,7 +205,10 @@ class SDCPService:
         try:
             payload = json.loads(text)
         except (ValueError, TypeError):
-            logger.warning("SDCP: ignoring non-JSON message")
+            # Log what it was: a client sending something we do not recognise
+            # is worth seeing, and an empty frame is worth telling apart from
+            # a malformed one.
+            logger.warning("SDCP: ignoring non-JSON message: %.200r", text)
             return
 
         inner = payload.get("Data") or {}

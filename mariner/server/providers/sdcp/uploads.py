@@ -14,10 +14,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, BinaryIO, Dict, Optional
 
-from werkzeug.utils import secure_filename
-
 from mariner import config
 from mariner.file_formats.utils import get_file_extension, get_supported_extensions
+from mariner.server.providers.filenames import safe_filename
 from mariner.server.providers.sdcp import constants
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -88,8 +87,9 @@ class UploadManager:
         if offset < 0 or total_size < 0:
             return ChunkResult(ok=False, error=constants.UploadError.OFFSET_ERROR)
 
-        safe_name = secure_filename(filename)
-        if not safe_name:
+        safe_name = safe_filename(filename)
+        if safe_name is None:
+            logger.warning("SDCP: refusing unsafe upload filename %r", filename)
             return ChunkResult(
                 ok=False,
                 error=constants.UploadError.UNKNOWN,

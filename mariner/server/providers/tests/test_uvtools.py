@@ -91,16 +91,43 @@ class UVToolsProviderTest(TestCase):
         )
         expect(response.status_code).to_equal(400)
 
-    def test_upload_file_sanitizes_dangerous_filename(self) -> None:
+    def test_upload_preserves_the_filename(self) -> None:
+        # The name has to survive unchanged: UVTools asks to print and delete
+        # under the name it uploaded, and a rewritten one would not be found.
+        name = "bracket_6(1).stl_1_0.050_2.500.ctb"
         response = self.client.post(
-            "/uvtools/upload/.._.._etc_passwd.ctb",
-            data=b"fake-ctb-data",
+            f"/uvtools/upload/{name}",
+            data=self.ctb_file_contents,
             content_type="application/octet-stream",
         )
         expect(response.status_code).to_equal(200)
-        expect(
-            os.path.isfile(config.get_files_directory() / "etc_passwd.ctb")
-        ).to_equal(True)
+        expect(response.get_json()["filename"]).to_equal(name)
+        expect(os.path.isfile(config.get_files_directory() / name)).to_equal(True)
+
+    def test_uploaded_name_can_be_printed_and_deleted_verbatim(self) -> None:
+        name = "bracket_6(1).stl_1_0.050_2.500.ctb"
+        self.client.post(
+            f"/uvtools/upload/{name}",
+            data=self.ctb_file_contents,
+            content_type="application/octet-stream",
+        )
+
+        expect(self.client.get(f"/uvtools/print/{name}").status_code).to_equal(200)
+        self.printer_mock.start_printing.assert_called_once_with(name)
+
+        expect(self.client.get(f"/uvtools/delete/{name}").status_code).to_equal(200)
+        expect(os.path.isfile(config.get_files_directory() / name)).to_equal(False)
+
+    def test_upload_rejects_a_backslash_in_the_filename(self) -> None:
+        response = self.client.post(
+            "/uvtools/upload/..\\..\\evil.ctb",
+            data=b"fake-ctb-data",
+            content_type="application/octet-stream",
+        )
+        expect(response.status_code).to_equal(400)
+        expect(os.path.isfile(config.get_files_directory() / "evil.ctb")).to_equal(
+            False
+        )
 
     # ---- Print ----
 
