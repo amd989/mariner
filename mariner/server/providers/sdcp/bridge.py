@@ -344,11 +344,19 @@ class PrinterBridge:
             return None
 
     def has_preview(self, filename: str) -> bool:
-        """Whether *filename* is still on disk and a format we can render."""
+        """Whether a preview for *filename* can actually be produced.
+
+        Rendering rather than trusting the extension: a supported extension
+        is no guarantee the file parses, and advertising a Thumbnail address
+        that then 404s leaves the client showing a broken image. The render
+        is memoized, so the GET that follows costs nothing extra.
+        """
         path = _safe_resolve(filename)
         if path is None or not os.path.isfile(path):
             return False
-        return get_file_extension(filename) in get_supported_extensions()
+        if get_file_extension(filename) not in get_supported_extensions():
+            return False
+        return self.render_preview(filename) is not None
 
     def render_preview(self, filename: str) -> Optional[bytes]:
         """PNG preview bytes for *filename*, or None if it cannot be made."""

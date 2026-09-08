@@ -561,12 +561,19 @@ class SDCPService:
 
         The file may have been deleted since the print, in which case the
         spec's Thumbnail field is better left empty than pointing at a 404.
+
+        The ".png" is load bearing, not decoration. Clients do not render
+        this address directly: ChituManager downloads it, saves it under the
+        last path segment, and re-serves it from a local HTTP server that
+        picks Content-Type from a fixed extension table. A bare task id
+        lands there with no extension and no usable type, so the image never
+        appears. _handle_thumbnail strips the suffix again on the way in.
         """
         if not filename or not self._bridge.has_preview(filename):
             return ""
         host = identity.get_local_ip()
         port = config.get_sdcp_server_port()
-        return f"http://{host}:{port}{constants.THUMBNAIL_PATH}/{task_id}"
+        return f"http://{host}:{port}{constants.THUMBNAIL_PATH}/{task_id}.png"
 
     async def _handle_thumbnail(self, request: web.Request) -> web.Response:
         task_id = request.match_info.get("task_id", "")

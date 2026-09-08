@@ -722,3 +722,66 @@ class ServiceHeartbeatTest(IsolatedAsyncioTestCase):
         await self.service._handle_text(cast(Any, ws), "ping")
         expect(ws.sent).to_equal(1)
         expect(len(self.service._clients)).to_equal(0)
+
+
+class ThumbnailUrlTest(TestCase):
+    service: Any
+    bridge: Any
+
+    def setUp(self) -> None:
+        _get_config.cache_clear()
+        identity._machine_seed.cache_clear()
+        self.bridge = Mock(spec=PrinterBridge)
+        self.service = SDCPService.__new__(SDCPService)
+        self.service._bridge = self.bridge
+
+    def test_url_ends_in_png(self) -> None:
+        # ChituManager saves the download under the URL's last path segment
+        # and re-serves it from a local HTTP server that types files by
+        # extension. Without a suffix the image never renders.
+        self.bridge.has_preview.return_value = True
+        url = self.service._thumbnail_url("abc123", "model.ctb")
+        expect(url.endswith("/abc123.png")).to_equal(True)
+
+    def test_last_path_segment_carries_the_task_id_and_suffix(self) -> None:
+        self.bridge.has_preview.return_value = True
+        url = self.service._thumbnail_url("abc123", "model.ctb")
+        expect(url.rsplit("/", 1)[-1]).to_equal("abc123.png")
+
+    def test_handler_strips_the_suffix_the_url_adds(self) -> None:
+        self.bridge.has_preview.return_value = True
+        segment = self.service._thumbnail_url("abc123", "model.ctb").rsplit("/", 1)[-1]
+        expect(segment.rsplit(".", 1)[0]).to_equal("abc123")
+
+    def test_no_url_without_a_filename(self) -> None:
+        self.bridge.has_preview.return_value = True
+        expect(self.service._thumbnail_url("abc123", "")).to_equal("")
+
+    def test_no_url_when_the_preview_cannot_be_rendered(self) -> None:
+        self.bridge.has_preview.return_value = False
+        expect(self.service._thumbnail_url("abc123", "model.ctb")).to_equal("")
+
+
+class HasPreviewTest(TestCase):
+    fs: FakeFilesystem
+    bridge: PrinterBridge
+
+    def setUp(self) -> None:
+        _get_config.cache_clear()
+        self.setUpPyfakefs(additional_skip_names=["importlib.metadata"])
+        self.fs.create_dir("/mnt/usb_share")
+        self.bridge = PrinterBridge()
+
+    def test_false_for_a_missing_file(self) -> None:
+        expect(self.bridge.has_preview("nope.ctb")).to_equal(False)
+
+    def test_false_for_an_unsupported_extension(self) -> None:
+        self.fs.create_file("/mnt/usb_share/notes.txt", contents="hi")
+        expect(self.bridge.has_preview("notes.txt")).to_equal(False)
+
+    def test_false_when_the_file_cannot_be_parsed(self) -> None:
+        # A supported extension is not a promise the file parses. Saying yes
+        # here would advertise a Thumbnail address that 404s, which shows up
+        # in the client as a broken image rather than as no image.
+        self.fs.create_file("/mnt/usb_share/corrupt.ctb", contents="not a ctb")
+        expect(self.bridge.has_preview("corrupt.ctb")).to_equal(False)
