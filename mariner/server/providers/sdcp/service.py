@@ -184,6 +184,21 @@ class SDCPService:
             async for msg in ws:
                 if msg.type == WSMsgType.TEXT:
                     await self._handle_text(ws, msg.data)
+                elif msg.type == WSMsgType.BINARY:
+                    # Lychee Slicer sends every request as
+                    # ws.send(Buffer.from(JSON.stringify(...))), which the
+                    # npm ws client puts on the wire as a binary frame. The
+                    # payload is still UTF-8 JSON, so it goes through the
+                    # same path as a text frame.
+                    try:
+                        text = msg.data.decode("utf-8")
+                    except UnicodeDecodeError:
+                        logger.warning(
+                            "SDCP: ignoring undecodable binary frame (%d bytes)",
+                            len(msg.data),
+                        )
+                        continue
+                    await self._handle_text(ws, text)
                 elif msg.type == WSMsgType.ERROR:
                     break
         except asyncio.CancelledError:
