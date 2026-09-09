@@ -1,18 +1,18 @@
 Package: mariner3d
-Version: 0.7.5-1+bookworm
+Version: 0.7.6-1+bookworm
 Architecture: arm64
 Maintainer: Alejandro Mora <mail@alejandro.md>
-Installed-Size: 96681
+Installed-Size: 96682
 Pre-Depends: dpkg (>= 1.19.1)
 Depends: libxslt1.1, libxml2, zlib1g
 Homepage: https://github.com/amd989/mariner
 Priority: optional
 Section: python
-Filename: pool/main/m/mariner3d/mariner3d_0.7.5-1+bookworm_arm64.deb
-Size: 31899404
-SHA256: b3ce0e69a9f9c08fb7b7a878187cb4641251e09d8db221bec5c7897cbc6b0bb8
-SHA1: aec65f27966efaa4d5e6df68bd3cb62535873379
-MD5sum: 1adfa5604f1dd9838f256ffc7f59a370
+Filename: pool/main/m/mariner3d/mariner3d_0.7.6-1+bookworm_arm64.deb
+Size: 31898492
+SHA256: 30331b46a26a970848aeee35edbe29baa49b27213145ec7603082f2cc17ffba9
+SHA1: 541994e1ca6d5a071abd83d4fc16850e8df933cd
+MD5sum: f83b2ab66cb8435a276e23b8ea7a16d2
 Description: Web application for controlling MSLA 3D Printers based on ChiTu controllers
  Mariner 2 is a web interface for remotely controlling MSLA resin 3D printers
  that use ChiTu-based controllers. It supports multiple file formats including

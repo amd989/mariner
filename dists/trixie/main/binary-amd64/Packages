@@ -1,18 +1,18 @@
 Package: mariner3d
-Version: 0.7.5-1+trixie
+Version: 0.7.6-1+trixie
 Architecture: amd64
 Maintainer: Alejandro Mora <mail@alejandro.md>
-Installed-Size: 89372
+Installed-Size: 89374
 Pre-Depends: dpkg (>= 1.19.1)
 Depends: libxslt1.1, libxml2, zlib1g
 Homepage: https://github.com/amd989/mariner
 Priority: optional
 Section: python
-Filename: pool/main/m/mariner3d/mariner3d_0.7.5-1+trixie_amd64.deb
-Size: 32689600
-SHA256: 556d84f906aed5b7ce608f1d624a5316b4e9864e0fbef10352400c4d92e44dd9
-SHA1: de46f1232dab626257f5cfad89a3ddabec7ac3d4
-MD5sum: 58715b01b83b6358a6fea89cdc5f4f52
+Filename: pool/main/m/mariner3d/mariner3d_0.7.6-1+trixie_amd64.deb
+Size: 32689516
+SHA256: 39eb305cb5b0252bc696e603e9e9030c2a67c7de9d304af682d4954b264bb585
+SHA1: 1978ca28b948887159c5b44bac6550c6fae69b28
+MD5sum: 8b1d62cbf0ec0049c6928fe46693edd8
 Description: Web application for controlling MSLA 3D Printers based on ChiTu controllers
  Mariner 2 is a web interface for remotely controlling MSLA resin 3D printers
  that use ChiTu-based controllers. It supports multiple file formats including
