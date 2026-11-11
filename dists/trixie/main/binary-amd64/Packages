@@ -1,18 +1,40 @@
+Package: alejandro-md-keyring
+Version: 1.0.1
+Architecture: all
+Maintainer: Alejandro Mora <mail@alejandro.md>
+Depends: ca-certificates
+Homepage: https://packages.alejandro.md
+Priority: optional
+Section: misc
+Filename: pool/main/a/alejandro-md-keyring/alejandro-md-keyring_1.0.1_all.deb
+Size: 2408
+SHA256: e6c4299461bc6e2d60c37c9a55437e8bf63582f549f683453c985f3f6c1fc9be
+SHA1: 044d0b3d488bbd6d8614c491f9a5137ef70b2385
+MD5sum: 69f1934af012bbf4e71885dcd777f4a1
+Description: GPG keyring and APT source for packages.alejandro.md
+ Installs the OpenPGP public key used to sign every package published at
+ packages.alejandro.md, and registers the matching APT source for the
+ running Debian or Raspbian release.
+ .
+ Packages from that repository depend on this one, so the source and key
+ are configured once rather than duplicated per project.
+
 Package: mariner3d
-Version: 0.7.6-1+trixie
+Version: 1.0.0-1+trixie
 Architecture: amd64
 Maintainer: Alejandro Mora <mail@alejandro.md>
-Installed-Size: 89374
+Installed-Size: 89373
 Pre-Depends: dpkg (>= 1.19.1)
 Depends: libxslt1.1, libxml2, zlib1g
-Homepage: https://github.com/amd989/mariner
+Recommends: alejandro-md-keyring
+Homepage: https://github.com/mariner3d/mariner
 Priority: optional
 Section: python
-Filename: pool/main/m/mariner3d/mariner3d_0.7.6-1+trixie_amd64.deb
-Size: 32689516
-SHA256: 39eb305cb5b0252bc696e603e9e9030c2a67c7de9d304af682d4954b264bb585
-SHA1: 1978ca28b948887159c5b44bac6550c6fae69b28
-MD5sum: 8b1d62cbf0ec0049c6928fe46693edd8
+Filename: pool/main/m/mariner3d/mariner3d_1.0.0-1+trixie_amd64.deb
+Size: 32717648
+SHA256: 1d83444290bafa7e5929d6edd5c9aa0c88ca8ab4412f859e87edcc71ef482b1b
+SHA1: 3e1ed890c9ed22ac1c20df8f2d22f81bb4d41e89
+MD5sum: 59bbe797c05dea7bfa1510f84fb66833
 Description: Web application for controlling MSLA 3D Printers based on ChiTu controllers
  Mariner 2 is a web interface for remotely controlling MSLA resin 3D printers
  that use ChiTu-based controllers. It supports multiple file formats including
