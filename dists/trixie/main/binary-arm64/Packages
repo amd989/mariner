@@ -20,21 +20,20 @@ Description: GPG keyring and APT source for packages.alejandro.md
  are configured once rather than duplicated per project.
 
 Package: mariner3d
-Version: 1.0.0-1+trixie
+Version: 1.0.1-1+trixie
 Architecture: arm64
 Maintainer: Alejandro Mora <mail@alejandro.md>
-Installed-Size: 92484
+Installed-Size: 92489
 Pre-Depends: dpkg (>= 1.19.1)
-Depends: libxslt1.1, libxml2, zlib1g
-Recommends: alejandro-md-keyring
+Depends: libxslt1.1, libxml2, zlib1g, alejandro-md-keyring
 Homepage: https://github.com/mariner3d/mariner
 Priority: optional
 Section: python
-Filename: pool/main/m/mariner3d/mariner3d_1.0.0-1+trixie_arm64.deb
-Size: 31697508
-SHA256: 7b9c1f48f6db04425efa0029341c71baf33f59b51654a76ab09fbaeb2c9a5a95
-SHA1: 0ac88a16f69f75316e85492102e881b1dc271d74
-MD5sum: 5d166021470df62ad27516c689c8810f
+Filename: pool/main/m/mariner3d/mariner3d_1.0.1-1+trixie_arm64.deb
+Size: 31699928
+SHA256: 0ac802423f82937d059fb18dee66c3e6d43e60a1cacc1342d48cd27dfb094f3e
+SHA1: 440d3d066d4142408f0d9145ce9dfe9951cf0cbe
+MD5sum: ad99ea0e581ba8963c4eacd208ed9fae
 Description: Web application for controlling MSLA 3D Printers based on ChiTu controllers
  Mariner 2 is a web interface for remotely controlling MSLA resin 3D printers
  that use ChiTu-based controllers. It supports multiple file formats including

@@ -4,44 +4,44 @@ Hash: SHA512
 Origin: mariner3d
 Label: mariner3d
 Codename: stable
-Date: Wed, 11 Nov 2026 18:45:33 UTC
+Date: Thu, 12 Nov 2026 17:08:49 UTC
 Architectures: amd64 arm64 armhf
 Components: main
 Description: Mariner 2 - legacy APT suite (same packages as bookworm; use bookworm or trixie for new installs)
 MD5Sum:
- 457bc320e4f35257da764a69f7ab61ec 4056 main/binary-amd64/Packages
- 3091b59fa935b5dec78570555c5345a3 2225 main/binary-amd64/Packages.gz
+ 6df78db96d1876aedd5176aafe32edc9 4045 main/binary-amd64/Packages
+ 20f90b11879384075fb3ae8e1ad5865f 2215 main/binary-amd64/Packages.gz
  3408ea0e52f1c91f66e95b404ec9706f 123 main/binary-amd64/Release
- 24381558b686702f999768f9b1345459 3974 main/binary-arm64/Packages
- 9ce97426987e270d038792fe6ead5b0a 2171 main/binary-arm64/Packages.gz
+ 1cf517c1595185352b49073a7500e4cd 3963 main/binary-arm64/Packages
+ 3ffd2494e353e47f39a8ef2523073708 2164 main/binary-arm64/Packages.gz
  5fa20d76c6f842c5af612a4c8681dd39 123 main/binary-arm64/Release
- aff600177cf53aea78e0b2b2f44f371e 3933 main/binary-armhf/Packages
- 7a41506b1bf97d16f114f53bd525be97 2145 main/binary-armhf/Packages.gz
+ c3c9a4659b02005f10ae29f6dd685dfd 3922 main/binary-armhf/Packages
+ f8c485cb9e12e51bdd8ed5879d2d7ac3 2138 main/binary-armhf/Packages.gz
  024c5a1cef1bcbdb92d5214326b5d7b4 123 main/binary-armhf/Release
 SHA1:
- f307534d41fae3e10ddec3241a926d024684e5d0 4056 main/binary-amd64/Packages
- d22a666fbafb6d01418f9e6f400359bfbe8bf5d4 2225 main/binary-amd64/Packages.gz
+ e2658100d3877440d843f8da1d5dec1156791908 4045 main/binary-amd64/Packages
+ 7b787b1f0b9283be074105220f9d4bf0e79d9c2f 2215 main/binary-amd64/Packages.gz
  289a29401ada48e99d8d3437a12e41b8cea0450c 123 main/binary-amd64/Release
- e9c535721e8ff0c89d9d372b5dc73b09d7407253 3974 main/binary-arm64/Packages
- 43d5c9aabd1cf67596dea6693f48fce4caca6b5c 2171 main/binary-arm64/Packages.gz
+ dcc4bd9729e320203cf54b78c84f08c95af329d9 3963 main/binary-arm64/Packages
+ b1512e6f15c2fc8ff9fdeda42ffd964bcdfd4d37 2164 main/binary-arm64/Packages.gz
  ee0433418fb552fb9f01c98d057561608c761ea1 123 main/binary-arm64/Release
- 19bf03591909baeef5c70f6d85c8b312945ac16d 3933 main/binary-armhf/Packages
- 7b9d183509301b6daead9ecc57a84a18735c53ab 2145 main/binary-armhf/Packages.gz
+ a8539719b5d8722eb8c2a29452ded0578092b406 3922 main/binary-armhf/Packages
+ c9ef43ae192040e98066cc0d19045c519603af64 2138 main/binary-armhf/Packages.gz
  7f07ca7a0ce3c4bde5e97dd0d3feabcad14ae30e 123 main/binary-armhf/Release
 SHA256:
- 9aacac816f90f3fd8c65cc8c261f61e3bfd191bb580f4b1337d7584d97564b45 4056 main/binary-amd64/Packages
- 613a635411a7f41040eaa959d26460801a7545c184dce4a34bf812019094e001 2225 main/binary-amd64/Packages.gz
+ 734c370b21687ae2d0081b99882b090a1dd3b4abd3dc3223b598bf7a8a55054c 4045 main/binary-amd64/Packages
+ 32d117bbb0505878b6874e49a185fd6255ddf47bcfded13e27bb2abd8c812105 2215 main/binary-amd64/Packages.gz
  778ec13961b21a748080b852506571377452606a97a0e582527e1b4b21ee5e6d 123 main/binary-amd64/Release
- bec908f32b909d36e75a8ac59caa8f7513f377a769751511b915c50d5d5a5a0a 3974 main/binary-arm64/Packages
- ed7ca74e7a099d0c184fc2d907c65c4c994a498da0ec8a3a6b1925bc0dee3132 2171 main/binary-arm64/Packages.gz
+ 64d790e09d422fcca5401e652c8a973bf70880feb8b4e66b42d834c92527882d 3963 main/binary-arm64/Packages
+ c1fe4a57cfeb3d2a0d1e5f8baa9b1c61f492bcef031df66f640c32c547f7e6fa 2164 main/binary-arm64/Packages.gz
  38b9ff9b9914eb9a5d160fabb5347343b2dd864c8f006c88fdd6bba0aa1ad97c 123 main/binary-arm64/Release
- c9914812e65a89aa1fe8316671993812f878732b3200c5d46d50f9a840894733 3933 main/binary-armhf/Packages
- a9a69b388d66b93385594a267e759fa1d8cd2578dc5aaff132373477fbdd8ba1 2145 main/binary-armhf/Packages.gz
+ 88f288cd2a6f54069e13a2fe375f3d366581281ad22c108de52c83259f1f0655 3922 main/binary-armhf/Packages
+ 412ac0b540d4e7744a3b998e00e30baad76d7e377d456440d0dbd9fa61dd4dbe 2138 main/binary-armhf/Packages.gz
  2ddb82a5c3a69a4811461cbd7083e939daba4020e8c78d9f36252f86ae760ca6 123 main/binary-armhf/Release
 -----BEGIN PGP SIGNATURE-----
 
-iHUEARYKAB0WIQR4ApcagzmD3WDNTB9opm47Dqb4JQUCavS3zQAKCRBopm47Dqb4
-JVmQAQCB7TKbNp/JVgtWIivch1y6S5D/+puF0bvQY60bEl3GSwEAv6xVjLEfwLOz
-DTmnkbFttBYu1NwYH4zgn491TzYFhgU=
-=84OG
+iHUEARYKAB0WIQR4ApcagzmD3WDNTB9opm47Dqb4JQUCavXyoQAKCRBopm47Dqb4
+JatWAP9Ekb8tNsiPYMqrH1SaWf0UcxcJ4svXkJpbqomBZ20/PAD9EXPcEM51jlXC
+jD+Y7CqrPb3ZvNxXfRq8DjtdXc7lkQQ=
+=bwbG
 -----END PGP SIGNATURE-----

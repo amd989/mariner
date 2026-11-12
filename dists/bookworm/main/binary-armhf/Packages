@@ -20,21 +20,20 @@ Description: GPG keyring and APT source for packages.alejandro.md
  are configured once rather than duplicated per project.
 
 Package: mariner3d
-Version: 1.0.0-1+bookworm
+Version: 1.0.1-1+bookworm
 Architecture: armhf
 Maintainer: Alejandro Mora <mail@alejandro.md>
-Installed-Size: 89608
+Installed-Size: 89612
 Pre-Depends: dpkg (>= 1.19.1)
-Depends: libxslt1.1, libxml2, zlib1g
-Recommends: alejandro-md-keyring
+Depends: libxslt1.1, libxml2, zlib1g, alejandro-md-keyring
 Homepage: https://github.com/mariner3d/mariner
 Priority: optional
 Section: python
-Filename: pool/main/m/mariner3d/mariner3d_1.0.0-1+bookworm_armhf.deb
-Size: 32468444
-SHA256: b49a7e465f079165c31e69713d3ce1238daa81bd9eb12c1575f3e59572803902
-SHA1: ce8715ef53444c2056dcb2865689313ab662739d
-MD5sum: 0e947d6a378ee8b0877990ec1e696ae8
+Filename: pool/main/m/mariner3d/mariner3d_1.0.1-1+bookworm_armhf.deb
+Size: 32489288
+SHA256: 10b9fa6b4496ab5417944032833b17e822ac36cb6fabb5baf624bdab9ff6c985
+SHA1: 3c44e9ca29bd54c78443152ef91473ca681a4c07
+MD5sum: bbd3843c628a8cb3ef9026b7ce5466a0
 Description: Web application for controlling MSLA 3D Printers based on ChiTu controllers
  Mariner 2 is a web interface for remotely controlling MSLA resin 3D printers
  that use ChiTu-based controllers. It supports multiple file formats including
